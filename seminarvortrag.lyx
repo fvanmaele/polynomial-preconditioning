@@ -1,0 +1,5230 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass IEEEtran
+\begin_preamble
+% for subfigures/subtables
+\usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage{algorithm,algorithmic}
+\end_preamble
+\options journal
+\use_default_options false
+\maintain_unincluded_children false
+\language english
+\language_package none
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures false
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command bibtex
+\index_command default
+\float_placement h
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_title "Your Title"
+\pdf_author "Your Name"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered true
+\pdf_bookmarksopen true
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder true
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle false
+\pdf_quoted_options "pdfpagelayout=OneColumn, pdfnewwindow=true, pdfstartview=XYZ, plainpages=false"
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 2
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+This is a template \SpecialChar LyX
+ file for articles to be submitted to journals of the
+ Institute of Electrical and Electronics Engineers (IEEE).
+ For IEEE conference articles, see the template file 
+\emph on
+IEEEtran-Conference.lyx
+\emph default
+.
+ For general info see 
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://wiki.lyx.org/Examples/IEEE
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+It is important that you use the correct document class options for your
+ document..
+ These are explained in the IEEEtran documentation: 
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+http://mirror.ctan.org/macros/latex/contrib/IEEEtran/IEEEtran_HOWTO.pdf
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Title
+Analysis of Polynomial Preconditioners
+\end_layout
+
+\begin_layout Author
+Ferdinand Vanmaele
+\begin_inset Newline newline
+\end_inset
+
+Universität Heidelberg
+\begin_inset Newline newline
+\end_inset
+
+Email: Vanmaele@stud.uni-heidelberg.de
+\end_layout
+
+\begin_layout Page headings
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+Universität Heidelberg, ziti, Advanced Seminar
+\end_layout
+
+\end_inset
+
+Ferdinand Vanmaele
+\end_layout
+
+\begin_layout Abstract
+We explore solving large systems of linear equations using the GMRES method,
+ and study the effect of polynomial preconditiong for this method.
+ Besides improving convergence for difficult problems, polynomial preconditionin
+g allows us to reduce the amount of required scalar products, at the cost
+ of more SpMV (sparse matrix-vector multiplication) operations.
+ Preconditioning thus improves performance when solving such systems on
+ massively parallel systems, where communication costs of scalar products
+ can be a bottleneck.
+\end_layout
+
+\begin_layout Keywords
+Krylov subspaces, GMRES, polynomial preconditioning, communication-avoiding
+\end_layout
+
+\begin_layout Peer Review Title
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Don't add text here!
+\end_layout
+
+\end_inset
+
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+required if you use the document class option 
+\family sans
+peerreview
+\family default
+, must otherwise not be used
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Introduction"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Systems of linear equations 
+\begin_inset Formula $Ax=b$
+\end_inset
+
+, where 
+\begin_inset Formula $A$
+\end_inset
+
+ is a sparse matrix of high dimension 
+\begin_inset Formula $n$
+\end_inset
+
+, are widely solved in scientific computing through iterative methods, that
+ is, by finding a succession of approximations from an initial value 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Chapter 6"
+key "Magoules-2015"
+literal "false"
+
+\end_inset
+
+.
+ This is in contrast to direct methods, which are based on the initial factoriza
+tion of the coefficient matrix and give the result in a number of exactly
+ predictable operations.
+ The disadvantage of direct methods lies in a high number of arithmetic
+ operations, and in the memory footprint of storing matrices that were initially
+ sparse 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Example 3.3"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+mention explicitly that 
+\begin_inset Formula $A$
+\end_inset
+
+ is sparse!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+GMRES (Generalized Minimum Residual) method is an iterative method suitable
+ for a wide range of linear systems, including indefinite and nonsymmetric
+ systems.
+ In every step, it minimizes the norm of the residual vector 
+\begin_inset Formula $\|b-A\tilde{x}\|$
+\end_inset
+
+ over a Krylov subspace.
+ Constructing the Krylov subspace is done through a Gram-Schmidt orthogonalizati
+on procedure using inner products.
+ On parallel and distributed systems, computing inner products requires
+ global reduction operations involving all processes.
+ In comparison, sparse matrix-vector multiplications only need to exchange
+ data between neighbors 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "14.5"
+key "Magoules-2015"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+To address this issue, we consider preconditioned systems 
+\begin_inset Formula $M^{-1}Ax=M^{-1}b$
+\end_inset
+
+, where 
+\begin_inset Formula $M^{-1}$
+\end_inset
+
+ is a (typically low degree) matrix polynomial.
+ This preconditioned system has the same solution as the original system
+ 
+\begin_inset Formula $Ax=b$
+\end_inset
+
+, but may have faster convergence.
+ Achieving a certain tolerance for the residual thus occurs in less GMRES
+ steps (inner products), at the expense of more matrix-vector multiplications
+ in every step.
+ We discuss a polynomial which does not require knowledge of the spectrum
+ of the matrix 
+\begin_inset Formula $A$
+\end_inset
+
+.
+ Finding the coefficients of 
+\begin_inset Formula $M^{-1}$
+\end_inset
+
+ requires a (possibly dense) matrix-matrix multiplication.
+ This cost can be controlled by the degree of the polynomial, depending
+ on the difficulty of the problem, making it more granular than classical
+ preconditioners such as ILU decomposition.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+citation? (from vorbesprechung)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Related Work
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Related-Work"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Saad 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Saad-1986"
+literal "false"
+
+\end_inset
+
+ introduced the GMRES method for systems in which the coefficent matrix
+ 
+\begin_inset Formula $A$
+\end_inset
+
+ is nonsymmetric or indefinite.
+ Indefinite systems commonly arise, for example, in mixed finite element
+ methods for solving problems in fluid and solid mechanics 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Benzi-2005,Rozložník-2018"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Since then, the algorithms have been included in general textbooks on numerical
+ linear algebra and scientific computing 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Saad-2003,Trefethen-1997,Magoules-2015"
+literal "false"
+
+\end_inset
+
+.
+ Implementations are available in MATLAB and scientific computing libraries
+ such as GSL and TRILINOS.
+ Liu 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Liu-2015"
+literal "false"
+
+\end_inset
+
+ discusses polynomial preconditioning with GMRES and introduces a way to
+ find the coefficients without knowledge of the matrix spectrum.
+ Loe et.
+ al.
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Loe-2019"
+literal "false"
+
+\end_inset
+
+ conducted further experiments on (shared-memory) parallel hardware with
+ TRILINOS.
+ 
+\end_layout
+
+\begin_layout Standard
+Besides polynomial preconditioning, Block Krylov methods also help reduce
+ the effect of inner products on communication.
+ Saad 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "6.12"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+ put forward an overview and gives further references.
+ 
+\end_layout
+
+\begin_layout Standard
+After revisiting theoretical results on Krylov subspaces and GMRES in sections
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Krylov-subspaces"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:The-GMRES-method"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Convergence-of-GMRES"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+, we introduce polynomial preconditioning and its advantages in Chapter
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Polynomial-preconditioning"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+.
+ In section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Numerical-experiments"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ we test the impact of polynomial preconditioning on convergence for several
+ test problems.
+ 
+\end_layout
+
+\begin_layout Section
+Krylov subspaces
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Krylov-subspaces"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+We will look at iterative methods for solving the linear system 
+\begin_inset Formula $Ax=b$
+\end_inset
+
+ of dimension 
+\begin_inset Formula $n$
+\end_inset
+
+, where 
+\begin_inset Formula $A$
+\end_inset
+
+ is an invertible square matrix, with approximate solutions in Krylov subspaces.
+ These methods can be applied to either real or complex matrices.
+ We introduce Krylov subspaces and construct an orthonormal basis.
+ Solving a least squares problem to find the minimum residual for vectors
+ in this subspace leads to the GMRES method.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+A general 
+\series bold
+projection method
+\series default
+ for solving the linear system 
+\begin_inset Formula $Ax=b$
+\end_inset
+
+ extracts an approximate solution 
+\begin_inset Formula $x_{m}$
+\end_inset
+
+ from an affine subspace 
+\begin_inset Formula $x_{0}+\mathcal{K}_{m}$
+\end_inset
+
+of dimension 
+\begin_inset Formula $m$
+\end_inset
+
+ by imposing the Petrov-Galerkin condition 
+\begin_inset Formula $b-Ax_{m}\perp\mathcal{L}_{m}$
+\end_inset
+
+, where 
+\begin_inset Formula $\mathcal{L}_{m}$
+\end_inset
+
+ is another subspace of dimension 
+\begin_inset Formula $m$
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Definition
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+Krylov subspace 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "6.2"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+The 
+\series bold
+Krylov subspace
+\series default
+ of order 
+\begin_inset Formula $m$
+\end_inset
+
+, denoted by 
+\begin_inset Formula $\mathcal{K}_{p}$
+\end_inset
+
+, is the vector space spanned by 
+\begin_inset Formula $v\in\mathbb{R}^{n}$
+\end_inset
+
+ and the first 
+\begin_inset Formula $m-1$
+\end_inset
+
+ powers of 
+\begin_inset Formula $A$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+\mathcal{K}_{m}(A,v)=\text{span}\{v,Av,A^{2}v,\ldots,A^{m-1}v\}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The Krylov subspaces form an increasing family of subspaces, with dimension
+ bounded by 
+\begin_inset Formula $n$
+\end_inset
+
+.
+ It is the subspace of all vectors in 
+\begin_inset Formula $\mathbb{R}^{n}$
+\end_inset
+
+ which can be written as 
+\begin_inset Formula $x=p(A)v$
+\end_inset
+
+, where 
+\begin_inset Formula $p$
+\end_inset
+
+ is a polynomial of degree not exceding 
+\begin_inset Formula $m-1$
+\end_inset
+
+.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+In fact, it is of dimension 
+\begin_inset Formula $m$
+\end_inset
+
+ if and only if the degree of the minimal polynomial of 
+\begin_inset Formula $g_{0}$
+\end_inset
+
+ with respect to 
+\begin_inset Formula $A$
+\end_inset
+
+ is not less than 
+\begin_inset Formula $m$
+\end_inset
+
+.
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Proposition 6.2"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+In practice, constructing the Krylov subspaces amounts to determining their
+ basis.
+ The power basis 
+\begin_inset Formula $(v,Av,A^{2}v,\ldots,A^{m-1}v)$
+\end_inset
+
+ converges to (a multiple of) an eigenvector that corresponds to the largest
+ eigenvalue of 
+\begin_inset Formula $A$
+\end_inset
+
+, in absolute value 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "10.2"
+key "Magoules-2015"
+literal "false"
+
+\end_inset
+
+.
+ Therefore we construct an orthonormal basis 
+\begin_inset Formula $\{v_{1},v_{2},\ldots,v_{m}\}$
+\end_inset
+
+ as follows.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Arnoldi's method
+\series default
+ applies the (modified) Gram-Schmidt orthonormalization procedure to the
+ vectors obtained by successive products of the matrix 
+\begin_inset Formula $A$
+\end_inset
+
+.
+ Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Arnoldi-Modified-Gram-Schmidt"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "6.3.2"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+ gives a practical implementation.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+note: 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Loe-2019"
+literal "false"
+
+\end_inset
+
+ uses classical gram-schmidt
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+Choose a vector 
+\begin_inset Formula $v_{1}$
+\end_inset
+
+ of norm 1
+\end_layout
+
+\begin_layout Plain Layout
+For 
+\begin_inset Formula $j=1,2,\ldots,m$
+\end_inset
+
+ Do:
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 2em
+\end_inset
+
+Compute 
+\begin_inset Formula $w_{j}:=Av_{j}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 2em
+\end_inset
+
+For 
+\begin_inset Formula $i=1,\cdots,j$
+\end_inset
+
+ Do:
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 2em
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 2em
+\end_inset
+
+
+\begin_inset Formula $h_{ij}=(w_{j},v_{i})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 2em
+\end_inset
+
+
+\begin_inset space \hspace{}
+\length 2em
+\end_inset
+
+
+\begin_inset Formula $w_{j}:=w_{j}-h_{ij}v_{i}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 2em
+\end_inset
+
+EndDo
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 2em
+\end_inset
+
+
+\begin_inset Formula $h_{j+1,j}=\|w_{j}\|_{2}$
+\end_inset
+
+.
+ If 
+\begin_inset Formula $h_{j+1,j}=0$
+\end_inset
+
+ Stop
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 2em
+\end_inset
+
+
+\begin_inset Formula $v_{j+1}=w_{j}/h_{j+1,j}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+EndDo
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Arnoldi-Modified Gram-Schmidt
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Arnoldi-Modified-Gram-Schmidt"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The modified Gram-Schmidt procedure has better numerical properties than
+ the classical procedure 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "6.3.2"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+, but requires additional synchronization points when implemented on a parallel
+ computer.
+ Additional methods such as DCGS2 were introduced to address these issues
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Hernandez-2005"
+literal "false"
+
+\end_inset
+
+.
+ Householder transformations, which are relatively costly but stable, were
+ also proposed 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "2.3.4"
+key "Barret-1994"
+literal "false"
+
+\end_inset
+
+.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+with worse parallelization properties
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The following important relations hold for the Arnoldi basis: 
+\begin_inset Formula 
+\[
+AV_{m}=V_{m+1}\overline{H}_{m},\qquad V_{m}^{T}AV_{m}=H_{m},
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $V_{m}$
+\end_inset
+
+ denotes the 
+\begin_inset Formula $n\times m$
+\end_inset
+
+ matrix with orthonormal column vectors 
+\begin_inset Formula $v_{1},\ldots,v_{m}$
+\end_inset
+
+, 
+\begin_inset Formula $\overline{H}_{m}$
+\end_inset
+
+ the 
+\begin_inset Formula $(m+1)\times m$
+\end_inset
+
+ Hessenberg matrix
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+all zero entries below the subdiagonal
+\end_layout
+
+\end_inset
+
+ with nonzero entries 
+\begin_inset Formula $h_{ij}$
+\end_inset
+
+, and 
+\begin_inset Formula $H_{m}$
+\end_inset
+
+ the matrix obtained from 
+\begin_inset Formula $\overline{H}_{m}$
+\end_inset
+
+ by deleting its last row: 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Proposition 6.5"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+H_{m}=\begin{pmatrix}h_{1,1} & h_{1,2} & \cdots & \cdots & h_{1,m}\\
+h_{2,1} & h_{2,2} &  &  & \vdots\\
+ & h_{3,2} & \ddots &  & \vdots\\
+ &  & \ddots & \ddots & \vdots\\
+ &  &  & \ddots & h_{m,m-1}h_{m,m}
+\end{pmatrix}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+The GMRES method
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:The-GMRES-method"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $r_{0}=b-Ax_{0}$
+\end_inset
+
+ denote the residual for an initial approximation 
+\begin_inset Formula $x_{0}$
+\end_inset
+
+.
+ Let 
+\begin_inset Formula $\mathcal{K}_{m}:=\mathcal{K}_{m}(A,r_{0})$
+\end_inset
+
+.
+ We seek to minimize the residual on the affine subspace 
+\begin_inset Formula $x_{0}+\mathcal{K}_{m}$
+\end_inset
+
+ of dimension 
+\begin_inset Formula $m$
+\end_inset
+
+.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Our problem is to find a vector 
+\begin_inset Formula $c\in\mathbb{C}^{n}$
+\end_inset
+
+such that 
+\begin_inset Formula $\|AK_{n}c-b\|$
+\end_inset
+
+ = minimum
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Definition
+Choose 
+\begin_inset Formula $v_{1}=r_{0}/\|r_{0}\|$
+\end_inset
+
+ for the Arnoldi basis, and let 
+\begin_inset Formula $\beta:=\|r_{0}\|$
+\end_inset
+
+.
+ Any vector in 
+\begin_inset Formula $x_{0}+\mathcal{K}_{m}$
+\end_inset
+
+ can be written as 
+\begin_inset Formula $x=x_{0}+V_{m}y$
+\end_inset
+
+, where 
+\begin_inset Formula $y\in\mathbb{R}^{m}$
+\end_inset
+
+.
+ By the above relation, the objective is given as: 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "6.5.1"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{align*}
+J(y) & =\|b-A(x_{0}+V_{m}y)\|_{2}=\|r_{0}-AV_{m}y\|_{2}\\
+ & =\|\beta v_{1}-V_{m+1}\overline{H}_{m}y\|_{2}.
+\end{align*}
+
+\end_inset
+
+By orthonormality of 
+\begin_inset Formula $V_{m+1}$
+\end_inset
+
+ column vectors, 
+\begin_inset Formula $J(y)=\|\beta e_{1}-\overline{H}_{m}y\|$
+\end_inset
+
+.
+ The 
+\series bold
+GMRES approximation
+\series default
+ is then the unique vector 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+\begin_inset Formula $V_{m}$
+\end_inset
+
+ is 
+\begin_inset Formula $m$
+\end_inset
+
+-dimensional basis -> unique solution to least squares problem ; 
+\begin_inset Formula $m$
+\end_inset
+
+ orthogonality restraints
+\end_layout
+
+\end_inset
+
+ of 
+\begin_inset Formula $x_{0}+\mathcal{K}_{m}$
+\end_inset
+
+ which minimizes 
+\begin_inset Formula $J$
+\end_inset
+
+.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+in each step
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+This results in the following algorithm: 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Algorithm 6.9"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+Compute 
+\begin_inset Formula $r_{0}=b-Ax_{0}$
+\end_inset
+
+, 
+\begin_inset Formula $\beta:=\|r_{0}\|_{2}$
+\end_inset
+
+, and 
+\begin_inset Formula $v_{1}:=r_{0}/\beta$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+For 
+\begin_inset Formula $j=1,2,\ldots,m$
+\end_inset
+
+ Do:
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \hspace{}
+\length 2em
+\end_inset
+
+
+\begin_inset Formula $\langle$
+\end_inset
+
+ step 
+\begin_inset Formula $n$
+\end_inset
+
+ of Arnoldi iteration, Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Arnoldi-Modified-Gram-Schmidt"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ 
+\begin_inset Formula $\rangle$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+EndDo
+\end_layout
+
+\begin_layout Plain Layout
+Define the 
+\begin_inset Formula $(m+1)\times m$
+\end_inset
+
+ Hessenberg matrix 
+\begin_inset Formula $\overline{H}_{m}=\{h_{ij}\}_{1\leq i\leq m+1,1\leq j\leq m}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+Compute 
+\begin_inset Formula $y_{m}$
+\end_inset
+
+ the minimizer of 
+\begin_inset Formula $\|\beta e_{1}-\overline{H}_{m}y\|_{2}$
+\end_inset
+
+ and 
+\begin_inset Formula $x_{m}=x_{0}+V_{m}y_{m}$
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+GMRES
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:GMRES"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Computing 
+\begin_inset Formula $y_{m}$
+\end_inset
+
+ is an 
+\begin_inset Formula $(m+1)\times m$
+\end_inset
+
+ matrix least squares problem with Hessenberg structure that can be solved
+ via QR factorization in the usual manner, at the cost of 
+\begin_inset Formula $\mathcal{O}(m^{2})$
+\end_inset
+
+ operations.
+ To save further work, rather than construct QR factorizations of the successive
+ matrices 
+\begin_inset Formula $\overline{H}_{1},\overline{H}_{2},\ldots$
+\end_inset
+
+ independently, we can use an updating process to get the QR factorization
+ of 
+\begin_inset Formula $\overline{H}_{m}$
+\end_inset
+
+ from that of 
+\begin_inset Formula $\overline{H}_{m-1}$
+\end_inset
+
+.
+ Doing so requires a single 
+\series bold
+Givens rotation
+\series default
+ and 
+\begin_inset Formula $\mathcal{O}(m)$
+\end_inset
+
+ work 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Mechanics of GMRES"
+key "Trefethen-1997"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+This approach also enables obtaining the residual norm of the approximate
+ solution without computing 
+\begin_inset Formula $x_{k}$
+\end_inset
+
+, thus allowing to decide when to stop the algorithm inexpensively 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "3.2"
+key "Saad-1986"
+literal "false"
+
+\end_inset
+
+.
+ Saad 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Saad-1986,Saad-2003"
+literal "false"
+
+\end_inset
+
+ gives the detailed implementation.
+\end_layout
+
+\begin_layout Standard
+Consider now the algorithm from a practical viewpoint.
+ As 
+\begin_inset Formula $m$
+\end_inset
+
+ increases, the computational cost increases at least as 
+\begin_inset Formula $\mathcal{O}(m^{2}n)$
+\end_inset
+
+ because of the Gram-Schmidt orthogonalization.
+ The memory cost increases as 
+\begin_inset Formula $\mathcal{O}(mn)$
+\end_inset
+
+.
+ For large 
+\begin_inset Formula $n$
+\end_inset
+
+ this limits the largest value of 
+\begin_inset Formula $m$
+\end_inset
+
+ that can be used.
+ One remedy is to restart the algorithm periodically 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "6.4.1, 6.5.5"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+.
+ This is the 
+\series bold
+restarted GMRES
+\series default
+ or GMRES(m) algorithm.
+ Note that GMRES(m) does not necessarily converge, unless the matrix 
+\begin_inset Formula $A$
+\end_inset
+
+ is positive definite 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "3.4"
+key "Saad-1986"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Convergence of GMRES
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Convergence-of-GMRES"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+A difficulty with GMRES(m) is that the residual norms, although nonincreasing,
+ do not necessarily converge to zero, unless the matrix 
+\begin_inset Formula $A$
+\end_inset
+
+ is positive definite.
+ For an 
+\begin_inset Formula $n\times n$
+\end_inset
+
+ problem, the full GMRES algorithm is guaranteed to converge in at most
+ 
+\begin_inset Formula $n$
+\end_inset
+
+ steps (where 
+\begin_inset Formula $K_{n}=\mathbb{R}^{n})$
+\end_inset
+
+, but this would be impractical if there were many steps required for convergenc
+e.
+ A typical remedy is to use 
+\series bold
+preconditioning techniques
+\series default
+, whose goal is to reduce the number of steps required to converge 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "6.5.5"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+.g
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Because 
+\begin_inset Formula $\|r_{m}\|$
+\end_inset
+
+ is as small as possible for the subspace 
+\begin_inset Formula $\mathcal{K}_{m}$
+\end_inset
+
+, by enlarging 
+\begin_inset Formula $\mathcal{K}_{m}$
+\end_inset
+
+ to the space 
+\begin_inset Formula $\mathcal{K}_{m+1}$
+\end_inset
+
+ we can only decrease the residual norm, or at worst leave it unchanged.
+ Thus we observe that GMRES converges monotically: 
+\begin_inset Formula $\|r_{m+1}\|\leq\|r_{m}\|$
+\end_inset
+
+.
+ After 
+\begin_inset Formula $n$
+\end_inset
+
+ steps (for an 
+\begin_inset Formula $n\times n$
+\end_inset
+
+ problem), we have 
+\begin_inset Formula $\mathcal{K}_{n}=\mathbb{C}^{n}$
+\end_inset
+
+ and the full GMRES algorithm is guaranteed to converge.
+ However, for GMRES to be useful, it must converge to satisfactory precision
+ in 
+\begin_inset Formula $n\ll m$
+\end_inset
+
+ steps 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "p.270"
+key "Trefethen-1997"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+To obtain more useful information about convergence, we must turn to the
+ following problem.
+ The iterate 
+\begin_inset Formula $x_{m}\in x_{0}+\mathcal{K}_{m}$
+\end_inset
+
+ can be written as 
+\begin_inset Formula $x_{m}=x_{0}+q(A)r_{0}$
+\end_inset
+
+, where 
+\begin_inset Formula $q$
+\end_inset
+
+ is a polynomial of degree 
+\begin_inset Formula $m-1$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Furthermore, as 
+\begin_inset Formula $x_{m}$
+\end_inset
+
+ minimizes 
+\begin_inset Formula $\|r_{m}\|=\|b-Ax_{m}\|$
+\end_inset
+
+ in the affine subspace 
+\begin_inset Formula $x_{0}+\mathcal{K}_{m}$
+\end_inset
+
+, we have 
+\begin_inset Formula $x_{m}=x_{0}+q_{m}(A)r_{0}$
+\end_inset
+
+, where 
+\begin_inset Formula $q_{m}$
+\end_inset
+
+ is the polynomial that solves: 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Lemma 6.31"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+by orthogonal projection on the affine subspace
+\end_layout
+
+\end_inset
+
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+\begin_inset Formula $b-Ax_{0}-q_{m}(A)r_{0}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{align*}
+\|r_{m}\| & =\|b-A(x_{0}+q_{m}(A)r_{0})\|=\min_{q\in P_{m-1}}\|(I-Aq(A))r_{0}\|\\
+ & =\min_{p\in P_{m},p(0)=1}\|p(A)r_{0}\|.
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The polynomial 
+\begin_inset Formula $p$
+\end_inset
+
+ is determined by GMRES.
+ We can show:
+\end_layout
+
+\begin_layout Theorem
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Proposition 6.32"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+Suppose 
+\begin_inset Formula $A$
+\end_inset
+
+ is diagonalizable, satisfying 
+\begin_inset Formula $A=X\Lambda X^{-1}$
+\end_inset
+
+ with 
+\begin_inset Formula $\Lambda=\text{diag}\{\lambda_{1},\lambda_{2},\ldots,\lambda_{n}\}$
+\end_inset
+
+ is the diagonal matrix of eigenvalues.
+ We have the following upper bound on the residual:
+\begin_inset Formula 
+\[
+\|r_{m}\|\leq\kappa_{2}(X)\,\min_{p\in\mathbb{P}_{m},p(0)=1}\max|p(\lambda_{i})|.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This theorem
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+result? proposition?
+\end_layout
+
+\end_inset
+
+ can be summarized in words as follows.
+ If 
+\begin_inset Formula $A$
+\end_inset
+
+ is not too far from normal in the sense that 
+\begin_inset Formula $\mathcal{K}(X)$
+\end_inset
+
+ is not too large, and if properly normalized degree 
+\begin_inset Formula $m$
+\end_inset
+
+ polynomials can be found whose size on the spectrum 
+\begin_inset Formula $\Lambda(A)$
+\end_inset
+
+ decreases quickly with 
+\begin_inset Formula $m$
+\end_inset
+
+, then GMRES converges quickly 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "p.271"
+key "Trefethen-1997"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Example
+Let 
+\begin_inset Formula $n=4000$
+\end_inset
+
+, with entries sampled from 
+\begin_inset Formula $\mathcal{N}(2,0.5/\sqrt{n})$
+\end_inset
+
+.
+ The eigenvalues are roughly uniformly distributed in the disk of radius
+ 
+\begin_inset Formula $\frac{1}{2}$
+\end_inset
+
+ centered at 
+\begin_inset Formula $z=2$
+\end_inset
+
+.
+ 
+\begin_inset Formula $\|p(A)\|$
+\end_inset
+
+ is then approximately minimized by 
+\begin_inset Formula $p(z)=(1-z/2)^{m}$
+\end_inset
+
+, with a convergence rate of 
+\begin_inset Formula $4^{-m}$
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Trefethen-1997"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Corollary
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Saad-1986"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+Suppose 
+\begin_inset Formula $A$
+\end_inset
+
+ is positive real with symmetric part 
+\begin_inset Formula $M=\frac{1}{2}(A+A^{T})$
+\end_inset
+
+.
+ We have the following upper bound on the residual:
+\begin_inset Formula 
+\[
+\|r_{m}\|\leq\left(1-\frac{\lambda_{\min}(1/2(A^{T}+A))^{2}}{\lambda_{\max}(A^{T}A)}\right)^{\nicefrac{m}{2}}\|r_{0}\|.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In particular, if 
+\begin_inset Formula $A$
+\end_inset
+
+ is symmetric positive definite, we have:
+\begin_inset Formula 
+\[
+\|r_{m}\|\leq\left(\frac{\kappa(A)^{2}-1}{\kappa(A)^{2}}\right)^{\nicefrac{m}{2}}\|r_{0}\|,
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\kappa=\|A\|\|A^{-1}\|$
+\end_inset
+
+ denotes the condition number of 
+\begin_inset Formula $A$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+More convergence results in Saad 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Saad-1986"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Polynomial preconditioning
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Polynomial-preconditioning"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For any nonsingular 
+\begin_inset Formula $n\times n$
+\end_inset
+
+ matrix 
+\begin_inset Formula $M$
+\end_inset
+
+, the system 
+\begin_inset Formula $M^{-1}Ax=M^{-1}b$
+\end_inset
+
+ has the same solution as the nonsingular system 
+\begin_inset Formula $Ax=b$
+\end_inset
+
+.
+ Solving this system however depends on the properties of 
+\begin_inset Formula $M^{-1}A$
+\end_inset
+
+, and may require fewer steps to converge than the original system 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "10.1"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+.
+ We call 
+\begin_inset Formula $M$
+\end_inset
+
+ the 
+\series bold
+preconditioner
+\series default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $M$
+\end_inset
+
+ should meet the following requirements: 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Solving linear systems 
+\begin_inset Formula $My=c$
+\end_inset
+
+ can be done quickly – relevant for polynomial preconditioning?
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $M$
+\end_inset
+
+ lies between 
+\begin_inset Formula $M=A$
+\end_inset
+
+ (for the equally hard to solve system 
+\begin_inset Formula $x=A^{-1}b$
+\end_inset
+
+) and 
+\begin_inset Formula $M=I$
+\end_inset
+
+ (for the original system 
+\begin_inset Formula $Ax=b)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $M^{-1}$
+\end_inset
+
+ should be inexpensive to apply to an arbitrary vector.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $M$
+\end_inset
+
+ is 
+\begin_inset Quotes eld
+\end_inset
+
+close enough
+\begin_inset Quotes erd
+\end_inset
+
+ to 
+\begin_inset Formula $A$
+\end_inset
+
+, in the sense that the preconditioned system 
+\begin_inset Formula $M^{-1}Ax=M^{-1}b$
+\end_inset
+
+ converges more quickly than the system 
+\begin_inset Formula $Ax=b$
+\end_inset
+
+.
+ Specifically, we want 
+\begin_inset Formula $\|I-M^{-1}A\|$
+\end_inset
+
+ to be small and the eigenvalues of 
+\begin_inset Formula $M^{-1}A$
+\end_inset
+
+ close to 1, or clustered around some other value 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Lecture 40"
+key "Trefethen-1997"
+literal "false"
+
+\end_inset
+
+.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+important point for graphs later
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+With 
+\series bold
+polynomial preconditioning
+\series default
+, we approximate 
+\begin_inset Formula $M^{-1}=s(A)$
+\end_inset
+
+ directly with a polynomial 
+\begin_inset Formula $s$
+\end_inset
+
+, typically of low degree 
+\begin_inset Formula $d$
+\end_inset
+
+.
+ The original system is then replaced by the preconditioned system 
+\begin_inset Formula $s(A)Ax=s(A)b$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+In this system, the matrix 
+\begin_inset Formula $s(A)$
+\end_inset
+
+ does not need to be formed explicitly: 
+\begin_inset Formula $s(A)v$
+\end_inset
+
+ can be computed for any vector 
+\begin_inset Formula $v$
+\end_inset
+
+ from a sequence of matrix-by-vector products 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "12.3"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+.
+ In particular, 
+\series bold
+Horner's method
+\series default
+ computes 
+\begin_inset Formula $s(A)v$
+\end_inset
+
+ with 
+\begin_inset Formula $d$
+\end_inset
+
+ matrix-vector products: 
+\begin_inset Formula 
+\begin{align*}
+s(A)v & =s_{d+1}A^{d}v+s_{d}A^{d-1}v+\cdots+s_{1}v\\
+ & =A(A\cdots(s_{d+1}Av+s_{d}v)+\cdots+s_{2}v)+s_{1}v.
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that a polynomial preconditioner can be combined with other preconditioners
+ 
+\begin_inset Formula $\tilde{M}$
+\end_inset
+
+, such as ILU(
+\begin_inset Formula $k$
+\end_inset
+
+), by solving the system:
+\begin_inset Formula 
+\[
+s(\tilde{M}^{-1}A)\tilde{M}^{-1}A=s(\tilde{M}^{-1}A)\tilde{M}^{-1}b.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We now compute a polynomial preconditioner related to the GMRES polynomial.
+ Unlike methods such as 
+\series bold
+Chebyshev polynomials
+\series default
+ or 
+\series bold
+least squares polynomials
+\series default
+, which use estimates of the spectrum of 
+\begin_inset Formula $A$
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "12.3"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+, knowledge of the spectrum is required 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Liu-2015"
+literal "false"
+
+\end_inset
+
+.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Move this section down?
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+GMRES computes a polynomial 
+\begin_inset Formula $p(A)$
+\end_inset
+
+ corresponding to a minimal residual 
+\begin_inset Formula $\|p(A)r_{0}\|=\|(I-Aq(A))r_{0}\|$
+\end_inset
+
+.
+ We want to compute the coefficients of 
+\begin_inset Formula $q(A)$
+\end_inset
+
+ for a given degree 
+\begin_inset Formula $d$
+\end_inset
+
+ instead.
+ Denote this polynomial by 
+\begin_inset Formula $M^{-1}=s(A)$
+\end_inset
+
+ as above, and let 
+\begin_inset Formula $v_{0}\neq0$
+\end_inset
+
+.
+ We solve:
+\begin_inset Formula 
+\[
+\min\|(I-M^{-1}A)v_{0}\|=\min_{q\in\mathbb{P}_{d}}\|v_{0}-Aq(A)v_{0}\|
+\]
+
+\end_inset
+
+by building a power basis 
+\begin_inset Formula $Y=\{v_{0},Av_{0},\ldots,A^{d}v_{0}\}$
+\end_inset
+
+, and solving the normal equations 
+\begin_inset Formula 
+\[
+(AY)^{T}AYy=(AY)v_{0}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The elements of 
+\begin_inset Formula $y$
+\end_inset
+
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+\begin_inset Formula $s$
+\end_inset
+
+?
+\end_layout
+
+\end_inset
+
+are the coefficients of 
+\begin_inset Formula $M^{-1}$
+\end_inset
+
+.
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+that is,
+\begin_inset Formula $M^{-1}=y_{d+1}A^{d}+y_{d}A^{d-1}+\cdots+y_{2}A+y_{1}.$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ Note the following:
+\end_layout
+
+\begin_layout Itemize
+The method becomes unstable as the columns of 
+\begin_inset Formula $Y$
+\end_inset
+
+ lose linear independence, but its results are generally sufficient for
+ low-degree (up to 
+\begin_inset Formula $d=10$
+\end_inset
+
+) polynomials 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Liu-2015"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+The coefficients of the polynomial depend on the choice of 
+\begin_inset Formula $v_{0}$
+\end_inset
+
+.
+ Using a randomly chosen vector may be preferable in this case 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Loe-2019"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+The matrix 
+\begin_inset Formula $AY$
+\end_inset
+
+ is a (sparse) matrix of dimension 
+\begin_inset Formula $n\times(d+1)$
+\end_inset
+
+, and takes 
+\begin_inset Formula $d+1$
+\end_inset
+
+ matrix-vector products to compute.
+ The product 
+\begin_inset Formula $(AY)^{T}AY$
+\end_inset
+
+ is of dimension 
+\begin_inset Formula $(d+1)\times(d+1)$
+\end_inset
+
+ and requires a sparse matrix-matrix multiplication.
+ With 
+\begin_inset Formula $d\ll n$
+\end_inset
+
+, the system 
+\begin_inset Formula $(AY)^{T}AYy=(AY)v_{0}$
+\end_inset
+
+ can then be solved through a direct method such as LU decomposition.
+\end_layout
+
+\begin_layout Section
+Numerical experiments
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Numerical-experiments"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We consider the following problems.
+ Some of these problems are very difficult for GMRES to solve, and, considering
+ the small dimension 
+\begin_inset Formula $n$
+\end_inset
+
+, may be better suited for direct solvers.
+ They nonetheless give a good indication of the difficulties involved when
+ using GMRES.
+\end_layout
+
+\begin_layout Standard
+For every problem, the right-hand side is sampled from 
+\begin_inset Formula $\mathcal{N}(0,1)$
+\end_inset
+
+, the real normal distribution of mean 
+\begin_inset Formula $0$
+\end_inset
+
+ and standard deviation 1.
+ Orthonormalization was done using the Modified Gram-Schmidt procedure.
+ The vector for computing the power basis 
+\begin_inset Formula $Y$
+\end_inset
+
+ is sampled from 
+\begin_inset Formula $\mathcal{N}(-1,1)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:problem-1"
+
+\end_inset
+
+The 
+\series bold
+Circle Eigenvalue Matrix
+\series default
+ of size 
+\begin_inset Formula $n=2000$
+\end_inset
+
+, a block diagonal matrix with 
+\begin_inset Formula $2\times2$
+\end_inset
+
+ blocks:
+\begin_inset Formula 
+\[
+\begin{pmatrix}1+\cos(\alpha) & \sin(\alpha)\\
+-\sin(\alpha) & 1+\cos(\alpha)
+\end{pmatrix},
+\]
+
+\end_inset
+
+
+\begin_inset Formula $\alpha\in2k\frac{\pi}{n},\ k\in\{0,2,\ldots,n-2\}$
+\end_inset
+
+.
+ All eigenvalues of this matrix are on the unit circle on the complex plane
+ with center 
+\begin_inset Formula $(1,0)$
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Liu-2015"
+literal "false"
+
+\end_inset
+
+.
+ The condition number is estimated at 
+\begin_inset Formula $6.3662\times10^{3}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:problem-2"
+
+\end_inset
+
+The 
+\series bold
+Bidiagonal Matrix
+\series default
+ of size 
+\begin_inset Formula $n=5000$
+\end_inset
+
+ with diagonal elements 0.1, 0.2, 0.3, 
+\begin_inset Formula $\ldots,$
+\end_inset
+
+ 0.9, 1, 2, 3, 
+\begin_inset Formula $\ldots,$
+\end_inset
+
+ 4990, 4991 (
+\emph on
+BiDiag1
+\emph default
+).
+ The superdiagonal elements are all set to 0.2 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Liu-2015"
+literal "false"
+
+\end_inset
+
+.
+ The symmetric part is positive definite, and the condition number estimated
+ at 
+\begin_inset Formula $8.4589\times10^{4}$
+\end_inset
+
+.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+GMRES(20)
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:problem-3"
+
+\end_inset
+
+As problem 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:problem-2"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+, but the diagonal elements are set to 10, 11, 12, 
+\begin_inset Formula $\ldots,$
+\end_inset
+
+ 5009 (
+\emph on
+BiDiag2
+\emph default
+).
+ The condition number is estimated at 
+\begin_inset Formula $5.0137\times10^{3}$
+\end_inset
+
+.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+This problem has a smaller eigenvalue ratio and is thus easier to solve
+ by GMRES.
+ 
+\end_layout
+
+\end_inset
+
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+GMRES(20)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:problem-4"
+
+\end_inset
+
+
+\series bold
+S1RMQ4M1
+\series default
+ (Matrix Market), a real symmetric positive definite matrix of size 
+\begin_inset Formula $n=5489$
+\end_inset
+
+.
+ The matrix has high condition number, estimated at 
+\begin_inset Formula $3.21\times10^{6}$
+\end_inset
+
+ by Matrix Market.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:problem-5"
+
+\end_inset
+
+
+\series bold
+E20R0100
+\series default
+ (Matrix Market), a real non-symmetric indefinite matrix of size 
+\begin_inset Formula $n=4241$
+\end_inset
+
+.
+ The matrix has high condition number, estimated at 
+\begin_inset Formula $2.15\times10^{10}$
+\end_inset
+
+ by Matrix Market.
+ This matrix serves as a counter-example for classical preconditioners such
+ as ILU, where their application may result in a worse condition number.
+ 
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:problem-6"
+
+\end_inset
+
+
+\series bold
+SHERMAN5
+\series default
+ (Matrix Market), a real non-symmetric matrix of size 
+\begin_inset Formula $n=3312$
+\end_inset
+
+.
+ The condition number is estimated at 
+\begin_inset Formula $3.9\times10^{5}$
+\end_inset
+
+ by Matrix Market.
+ This matrix serves as an example where polynomial preconditioning can worsen
+ convergence.
+\end_layout
+
+\begin_layout Standard
+We use GMRES(20) for the Bidiagonal Matrix, GMRES(50) for SIRMQ4M1, and
+ GMRES(100) for E20R0100 and the Circle Eigenvalue Matrix.
+ The maximum of iterations is 5000 for all problems except for SHERMAN5,
+ which uses a maximum of 20,000 iterations.
+ Tolerance is set to 
+\begin_inset Formula $\varepsilon=10^{-8}$
+\end_inset
+
+ for the relative residual 
+\begin_inset Formula $\frac{\|b-Ax_{m}\|}{\|b\|}$
+\end_inset
+
+.
+ Polynomials of degree 3, 5, 7, and 10 are used for most problems.
+ Implementation was done in MATLAB, based on 
+\family typewriter
+gmres.m
+\family default
+ from the Netlib Repository.
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+In the below, we limit ourselves to the condition number and convergence
+ rate of the preconditioned system.
+ For detailed discussion on number of operations, see Loe 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Loe-2019"
+literal "false"
+
+\end_inset
+
+ and Liu 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Liu-2015"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Add operation counts for spmvs and inner products (simple enough, just needs
+ two extra plots)
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+We observe the following:
+\end_layout
+
+\begin_layout Itemize
+For all problems considered, preconditioning reduced the condition number,
+ typically by one order of magnitude for polynomials of degree 10 (Figure
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:cond_circle_evm"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Itemize
+Apart from the Circle Eigenvalue Matrix, the polynomial preconditioner had
+ very small coefficients for its higher-order terms (compare table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:E20R0100"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:S1RMQ4M1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+).
+ This effect may be due to the ill-conditioned problem of computing coefficients
+ via the normal equations with a power basis 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "III"
+key "Loe-2019"
+literal "false"
+
+\end_inset
+
+.
+ This corresponded with LAPACK reporting a very small RCOND for these problems
+ (
+\begin_inset Formula $<10^{-17}$
+\end_inset
+
+ for E20R011, 
+\begin_inset Formula $<10^{-25}$
+\end_inset
+
+ for S1RMQ4M1).
+\end_layout
+
+\begin_layout Itemize
+The spectrum of S1RMQ4M1 preconditioned with degree 7 or 9 polynomial had
+ negative eigenvalues.
+ These eigenvalues were outliers, and the behavior was not observed for
+ other degree polynomials.
+ One may however expect that 
+\begin_inset Formula $M^{-1}A$
+\end_inset
+
+, while symmetric, is in general not positive definite.
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+related to ill-conditioning?
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+For each problem, the preconditioner mapped the spectrum to cluster eigenvalues
+ around 1.
+ The effect was especially noticeable for E20R0100 and degree 10 polynomials.
+\end_layout
+
+\begin_layout Itemize
+For the Bidiagonal Matrix and S1RMQ4M1, it sufficed to use degree 3 polynomials
+ to ensure convergence to the given tolerance (Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:convergence_s1rmq4m1"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+).
+ More difficult problems required higher degree polynomials.
+ In particular, convergence for E20R0100 stalled for degree 
+\begin_inset Formula $<10$
+\end_inset
+
+ polynomials (Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:convergence_e20r0100"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+).
+ With improved convergence, the amount of inner products decreased accordingly
+ (Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:no_inner_products"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Itemize
+Apart from the Bidiagonal Matrix, the amount of SpMVs increased by ~3x (for
+ S1RMQ4M1) up to ~6x (for the Circle Eigenvalue Matrix).
+ For E20R0100, there was an up to ~8x increase, but with fast convergence
+ of a degree 10 preconditioner, latter only saw an increase of ~1.25x.
+\end_layout
+
+\begin_layout Itemize
+Results for SHERMAN5 varied widely between samples of 
+\begin_inset Formula $v_{0}$
+\end_inset
+
+ of 
+\begin_inset Formula $b$
+\end_inset
+
+.
+ Degree 7 polynomials as suggested in Loe 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Loe-2019"
+literal "false"
+
+\end_inset
+
+ improved convergence for some samples, but worsened it for others.
+ Degree 12 and 15 polynomials had more consistent results, but were still
+ not guaranteed to improve convergence.
+\end_layout
+
+\begin_layout Section*
+Conclusion
+\end_layout
+
+\begin_layout Standard
+Polynomial preconditioners can be used along with standard preconditioning,
+ and are effective to implement on parallel systems as a series of sparse
+ matrix-vector products.
+ We have introduced a polynomial preconditioner related to the minimum residual
+ (GMRES) polynomial.
+ 
+\end_layout
+
+\begin_layout Standard
+To compute the coefficient of the polynomial, no knowledge of the spectrum
+ of 
+\begin_inset Formula $A$
+\end_inset
+
+ is required.
+ The method, which bases on computing a power basis 
+\begin_inset Formula $(A^{i}v_{0})$
+\end_inset
+
+ is however ill-conditioned, which limits the degree of the polynomial.
+\end_layout
+
+\begin_layout Standard
+Applying this preconditioner to several difficult problems, including E20R0100,
+ shows it can be used to significantly improve convergence of GMRES.
+ In particular, on parallel systems, synchronization points from inner products
+ in each GMRES step are reduced.
+ Care should be taken for problems such as SHERMAN5, where effectiveness
+ varies strongly between the random vector samples 
+\begin_inset Formula $v_{0}$
+\end_inset
+
+ used for computing the preconditioner.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Saad-1986"
+literal "false"
+
+\end_inset
+
+Y.
+ SAAD, M.
+ H.
+ Schultz, 
+\emph on
+GMRES: A generalized minimal residual algorithm for solving nonsymmetric
+ linear systems,
+\emph default
+ SIAM J.
+ Sci.
+ Stat.
+ Comput.
+ Vol.
+ 7, No.
+ 3, July 1986.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Magoules-2015"
+literal "false"
+
+\end_inset
+
+F.
+ MAGOULES, F.
+ ROUX, G.
+ HOUZEAUX, 
+\emph on
+Parallel Scientific Computing, 
+\emph default
+Wiley, 2015.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+Y.
+ SAAD, 
+\emph on
+Iterative Methods for Sparse Linear Systems
+\emph default
+, SIAM, 2003.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Trefethen-1997"
+literal "false"
+
+\end_inset
+
+L.
+ N.
+ TREFETHEN, D.
+ BAU, 
+\emph on
+Numerical Linear Algebra
+\emph default
+, SIAM, 1997.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Benzi-2005"
+literal "false"
+
+\end_inset
+
+M.
+ BENZI, G.
+ H.
+ GOLUB, J.
+ LIESEN, 
+\emph on
+Numerical solution of saddle point problems, 
+\emph default
+Acta Numerica (2005), pp.
+ 1-137.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Rozložník-2018"
+literal "false"
+
+\end_inset
+
+M.
+ ROZLOŽNÍK, 
+\emph on
+Saddle-Point Problems and Their Iterative Solution
+\emph default
+, Birkhäuser, 2018.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Barret-1994"
+literal "false"
+
+\end_inset
+
+R.
+ BARRET et.
+ al., 
+\emph on
+Templates for the Solution of Linear Sytems: Building Blocks for Iterative
+ Methods
+\emph default
+, SIAM, 1994.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Liu-2015"
+literal "false"
+
+\end_inset
+
+Q.
+ LIU, R.
+ B.
+ MORGAN, W.
+ WILCOX, 
+\emph on
+Polynomial Preconditioned GMRES and GMRES-DR
+\emph default
+, SIAM J.
+ Sci.
+ Comput.
+ Vol.
+ 37, No.
+ 5, pp.
+ S407-S428, 2015.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Loe-2019"
+literal "false"
+
+\end_inset
+
+J.
+ A.
+ LOE, H.
+ K.
+ THORNQUIST, E.
+ G.
+ BOMAN, 
+\emph on
+Polynomial Preconditioned GMRES to Reduce Communication in Parallel Computing
+\emph default
+, arXiv, Oct 2019.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Hernandez-2005"
+literal "false"
+
+\end_inset
+
+V.
+ HERNANDÉZ, J.
+ E.
+ ROMÁN, A.
+ TOMAS, 
+\emph on
+A Parallel Variant of the Gram-Schmidt Process with Reorthogonalization
+\emph default
+, Proceedings of the International Conference Parco 2005, 13-16 September
+ 2005.
+\end_layout
+
+\begin_layout Appendix
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename example_1_spec.png
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Spectrum of 
+\begin_inset Formula $A$
+\end_inset
+
+ (blue) and 
+\begin_inset Formula $M^{-1}A$
+\end_inset
+
+ (orange, 
+\begin_inset Formula $d=10$
+\end_inset
+
+) for the Circle Eigenvalue Matrix
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:spec_circle_evm"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename example_5_spec.png
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Spectrum of 
+\begin_inset Formula $A$
+\end_inset
+
+ (blue) and 
+\begin_inset Formula $M^{-1}A$
+\end_inset
+
+ (orange, 
+\begin_inset Formula $d=10$
+\end_inset
+
+) for E20R0100
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:spec_e20r0100"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename example_6_condition.png
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Condition numbers for E20R0100 and SHERMAN5
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:cond_circle_evm"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename example_1_gmres.png
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Convergence of the Circle Eigenvalue Matrix, GMRES(100)
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:convergence_circle_evm"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename example_4_gmres.png
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Convergence of S1RMQ4M1, GMRES(50) 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:convergence_s1rmq4m1"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename example_5_gmres.png
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Convergence of E20R0100, GMRES(100) 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:convergence_e20r0100"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename example_6_gmres_2.png
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Convergence of SHERMAN5, GMRES(100), seed = 1892 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:convergence_SHERMAN5-1"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename inner_product_count.png
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Number of inner products for 
+\begin_inset Formula $\varepsilon=10^{-8}$
+\end_inset
+
+ and a maximum of 5000 iterations 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:no_inner_products"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename spmvs_count.png
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Number of SpMVs for 
+\begin_inset Formula $\varepsilon=10^{-8}$
+\end_inset
+
+ and a maximum of 5000 iterations
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="12" columns="4">
+<features tabularvalignment="middle">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<row>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+deg 3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+deg 5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+deg 7
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+deg 10
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-0.1945
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-0.1376
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-0.1084
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.0783
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.9805
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.9684
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.9778
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-0.9440
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-1.9805
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-2.9234
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-3.9207
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5.2195
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.0000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.9100
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9.1758
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-17.4999
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-4.9550
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-13.8125
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+39.6248
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.0000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+13.8695
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-63.8276
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-9.2898
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+74.9846
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.0000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-64.7198
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+40.7217
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-18.2159
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5.5000
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Coefficients for Circle Eigenvalue Matrix preconditioner 
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:circle_evm"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="12" columns="4">
+<features tabularvalignment="middle">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<row>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+deg 3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+deg 5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+deg 7
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+deg 10
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-0.0012$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-0.0001$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-3.4021$
+\end_inset
+
+e-06
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\xout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $3.2267$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\xout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+e-08
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.0337$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.0029$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.8944$
+\end_inset
+
+e-04
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\xout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $-2.4589$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\xout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+e-06
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-0.3126$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-0.0466$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-0.0044$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $8.1994$
+\end_inset
+
+e-05
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.0714$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.3634$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.0540$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-0.0016$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-1.3908$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-0.3836$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.0191$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $2.2885$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.5686$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-0.1526$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-3.4603$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.8125$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $3.4870$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-2.8310$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $6.1825$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-7.7796$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $4.7860$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Coefficients for E20R0100 preconditioner 
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:E20R0100"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="11" columns="4">
+<features tabularvalignment="middle">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<row>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+deg 3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+deg 5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+deg 7
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+deg 10
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $3.0913$
+\end_inset
+
+e-16
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.3545$
+\end_inset
+
+e-26
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $6.3270$
+\end_inset
+
+e-37
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-1.8078$
+\end_inset
+
+e-52
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-1.3733$
+\end_inset
+
+e-10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-1.0459$
+\end_inset
+
+e-20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-6.9969$
+\end_inset
+
+e-31
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $2.9462$
+\end_inset
+
+e-46
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $2.2131$
+\end_inset
+
+e-05
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $3.8068$
+\end_inset
+
+e-15
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $4.0678$
+\end_inset
+
+e-25
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-2.7248$
+\end_inset
+
+e-40
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-6.6028$
+\end_inset
+
+e-10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-1.3326$
+\end_inset
+
+e-19
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.5744$
+\end_inset
+
+e-34
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $4.8290$
+\end_inset
+
+e-05
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $2.4458$
+\end_inset
+
+e-14
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-5.8966$
+\end_inset
+
+e-29
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-2.3425$
+\end_inset
+
+e-09
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.4375$
+\end_inset
+
+e-23
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $9.7378$
+\end_inset
+
+e-05
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-2.2304$
+\end_inset
+
+e-18
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $2.0865$
+\end_inset
+
+e-13
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-1.0575$
+\end_inset
+
+e-08
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $2.3067$
+\end_inset
+
+e-04
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Coefficients for S1RMQ4M1 preconditioner 
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:S1RMQ4M1"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

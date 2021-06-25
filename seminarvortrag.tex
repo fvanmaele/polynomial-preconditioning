@@ -1,0 +1,738 @@
+%% LyX 2.3.5.2 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[twocolumn,journal]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{float}
+\usepackage{units}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[unicode=true,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=1,
+ breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{pdftitle={Your Title},
+ pdfauthor={Your Name},
+ pdfpagelayout=OneColumn, pdfnewwindow=true, pdfstartview=XYZ, plainpages=false}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+\floatstyle{ruled}
+\newfloat{algorithm}{tbp}{loa}
+\providecommand{\algorithmname}{Algorithm}
+\floatname{algorithm}{\protect\algorithmname}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+% protect \markboth against an old bug reintroduced in babel >= 3.8g
+\let\oldforeign@language\foreign@language
+\DeclareRobustCommand{\foreign@language}[1]{%
+  \lowercase{\oldforeign@language{#1}}}
+\theoremstyle{plain}
+\newtheorem{thm}{\protect\theoremname}
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{\protect\definitionname}
+\theoremstyle{definition}
+\newtheorem{example}[thm]{\protect\examplename}
+\theoremstyle{plain}
+\newtheorem{cor}[thm]{\protect\corollaryname}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+% for subfigures/subtables
+\usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage{algorithm,algorithmic}
+
+\makeatother
+
+\providecommand{\corollaryname}{Corollary}
+\providecommand{\definitionname}{Definition}
+\providecommand{\examplename}{Example}
+\providecommand{\theoremname}{Theorem}
+
+\begin{document}
+\title{Analysis of Polynomial Preconditioners}
+\author{Ferdinand Vanmaele\\
+Universität Heidelberg\\
+Email: Vanmaele@stud.uni-heidelberg.de}
+\markboth{Universität Heidelberg, ziti, Advanced Seminar}{Ferdinand Vanmaele}
+\maketitle
+\begin{abstract}
+We explore solving large systems of linear equations using the GMRES
+method, and study the effect of polynomial preconditiong for this
+method. Besides improving convergence for difficult problems, polynomial
+preconditioning allows us to reduce the amount of required scalar
+products, at the cost of more SpMV (sparse matrix-vector multiplication)
+operations. Preconditioning thus improves performance when solving
+such systems on massively parallel systems, where communication costs
+of scalar products can be a bottleneck.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Krylov subspaces, GMRES, polynomial preconditioning, communication-avoiding
+\end{IEEEkeywords}
+
+
+\IEEEpeerreviewmaketitle{}
+
+\section{Introduction\label{sec:Introduction}}
+
+Systems of linear equations $Ax=b$, where $A$ is a sparse matrix
+of high dimension $n$, are widely solved in scientific computing
+through iterative methods, that is, by finding a succession of approximations
+from an initial value \cite[Chapter 6]{Magoules-2015}. This is in
+contrast to direct methods, which are based on the initial factorization
+of the coefficient matrix and give the result in a number of exactly
+predictable operations. The disadvantage of direct methods lies in
+a high number of arithmetic operations, and in the memory footprint
+of storing matrices that were initially sparse \cite[Example 3.3]{Saad-2003}.
+
+GMRES (Generalized Minimum Residual) method is an iterative method
+suitable for a wide range of linear systems, including indefinite
+and nonsymmetric systems. In every step, it minimizes the norm of
+the residual vector $\|b-A\tilde{x}\|$ over a Krylov subspace. Constructing
+the Krylov subspace is done through a Gram-Schmidt orthogonalization
+procedure using inner products. On parallel and distributed systems,
+computing inner products requires global reduction operations involving
+all processes. In comparison, sparse matrix-vector multiplications
+only need to exchange data between neighbors \cite[14.5]{Magoules-2015}.
+
+To address this issue, we consider preconditioned systems $M^{-1}Ax=M^{-1}b$,
+where $M^{-1}$ is a (typically low degree) matrix polynomial. This
+preconditioned system has the same solution as the original system
+$Ax=b$, but may have faster convergence. Achieving a certain tolerance
+for the residual thus occurs in less GMRES steps (inner products),
+at the expense of more matrix-vector multiplications in every step.
+We discuss a polynomial which does not require knowledge of the spectrum
+of the matrix $A$. Finding the coefficients of $M^{-1}$ requires
+a (possibly dense) matrix-matrix multiplication. This cost can be
+controlled by the degree of the polynomial, depending on the difficulty
+of the problem, making it more granular than classical preconditioners
+such as ILU decomposition. 
+
+\section{Related Work\label{sec:Related-Work}}
+
+Saad \cite{Saad-1986} introduced the GMRES method for systems in
+which the coefficent matrix $A$ is nonsymmetric or indefinite. Indefinite
+systems commonly arise, for example, in mixed finite element methods
+for solving problems in fluid and solid mechanics \cite{Benzi-2005,Rozlo=00017En=0000EDk-2018}.
+
+Since then, the algorithms have been included in general textbooks
+on numerical linear algebra and scientific computing \cite{Saad-2003,Trefethen-1997,Magoules-2015}.
+Implementations are available in MATLAB and scientific computing libraries
+such as GSL and TRILINOS. Liu \cite{Liu-2015} discusses polynomial
+preconditioning with GMRES and introduces a way to find the coefficients
+without knowledge of the matrix spectrum. Loe et. al. \cite{Loe-2019}
+conducted further experiments on (shared-memory) parallel hardware
+with TRILINOS. 
+
+Besides polynomial preconditioning, Block Krylov methods also help
+reduce the effect of inner products on communication. Saad \cite[6.12]{Saad-2003}
+put forward an overview and gives further references. 
+
+After revisiting theoretical results on Krylov subspaces and GMRES
+in sections \ref{sec:Krylov-subspaces}, \ref{sec:The-GMRES-method}
+and \ref{sec:Convergence-of-GMRES}, we introduce polynomial preconditioning
+and its advantages in Chapter \ref{sec:Polynomial-preconditioning}.
+In section \ref{sec:Numerical-experiments} we test the impact of
+polynomial preconditioning on convergence for several test problems. 
+
+\section{Krylov subspaces\label{sec:Krylov-subspaces} }
+
+We will look at iterative methods for solving the linear system $Ax=b$
+of dimension $n$, where $A$ is an invertible square matrix, with
+approximate solutions in Krylov subspaces. These methods can be applied
+to either real or complex matrices. We introduce Krylov subspaces
+and construct an orthonormal basis. Solving a least squares problem
+to find the minimum residual for vectors in this subspace leads to
+the GMRES method. 
+\begin{defn}[{Krylov subspace \cite[6.2]{Saad-2003}}]
+The \textbf{Krylov subspace} of order $m$, denoted by $\mathcal{K}_{p}$,
+is the vector space spanned by $v\in\mathbb{R}^{n}$ and the first
+$m-1$ powers of $A$:
+\[
+\mathcal{K}_{m}(A,v)=\text{span}\{v,Av,A^{2}v,\ldots,A^{m-1}v\}.
+\]
+\end{defn}
+The Krylov subspaces form an increasing family of subspaces, with
+dimension bounded by $n$. It is the subspace of all vectors in $\mathbb{R}^{n}$
+which can be written as $x=p(A)v$, where $p$ is a polynomial of
+degree not exceding $m-1$.  
+
+In practice, constructing the Krylov subspaces amounts to determining
+their basis. The power basis $(v,Av,A^{2}v,\ldots,A^{m-1}v)$ converges
+to (a multiple of) an eigenvector that corresponds to the largest
+eigenvalue of $A$, in absolute value \cite[10.2]{Magoules-2015}.
+Therefore we construct an orthonormal basis $\{v_{1},v_{2},\ldots,v_{m}\}$
+as follows. 
+
+\textbf{Arnoldi's method} applies the (modified) Gram-Schmidt orthonormalization
+procedure to the vectors obtained by successive products of the matrix
+$A$. Algorithm \ref{alg:Arnoldi-Modified-Gram-Schmidt} \cite[6.3.2]{Saad-2003}
+gives a practical implementation. 
+
+\begin{algorithm}[h]
+Choose a vector $v_{1}$ of norm 1
+
+For $j=1,2,\ldots,m$ Do:
+
+\hspace{2em}Compute $w_{j}:=Av_{j}$
+
+\hspace{2em}For $i=1,\cdots,j$ Do:
+
+\hspace{2em}\hspace{2em}$h_{ij}=(w_{j},v_{i})$
+
+\hspace{2em}\hspace{2em}$w_{j}:=w_{j}-h_{ij}v_{i}$
+
+\hspace{2em}EndDo
+
+\hspace{2em}$h_{j+1,j}=\|w_{j}\|_{2}$. If $h_{j+1,j}=0$ Stop
+
+\hspace{2em}$v_{j+1}=w_{j}/h_{j+1,j}$
+
+EndDo
+
+\caption{Arnoldi-Modified Gram-Schmidt\label{alg:Arnoldi-Modified-Gram-Schmidt}}
+\end{algorithm}
+
+The modified Gram-Schmidt procedure has better numerical properties
+than the classical procedure \cite[6.3.2]{Saad-2003}, but requires
+additional synchronization points when implemented on a parallel computer.
+Additional methods such as DCGS2 were introduced to address these
+issues \cite{Hernandez-2005}. Householder transformations, which
+are relatively costly but stable, were also proposed \cite[2.3.4]{Barret-1994}.
+
+The following important relations hold for the Arnoldi basis: 
+\[
+AV_{m}=V_{m+1}\overline{H}_{m},\qquad V_{m}^{T}AV_{m}=H_{m},
+\]
+where $V_{m}$ denotes the $n\times m$ matrix with orthonormal column
+vectors $v_{1},\ldots,v_{m}$, $\overline{H}_{m}$ the $(m+1)\times m$
+Hessenberg matrix with nonzero entries $h_{ij}$, and $H_{m}$ the
+matrix obtained from $\overline{H}_{m}$ by deleting its last row:
+\cite[Proposition 6.5]{Saad-2003}
+\[
+H_{m}=\begin{pmatrix}h_{1,1} & h_{1,2} & \cdots & \cdots & h_{1,m}\\
+h_{2,1} & h_{2,2} &  &  & \vdots\\
+ & h_{3,2} & \ddots &  & \vdots\\
+ &  & \ddots & \ddots & \vdots\\
+ &  &  & \ddots & h_{m,m-1}h_{m,m}
+\end{pmatrix}.
+\]
+
+
+\section{The GMRES method\label{sec:The-GMRES-method}}
+
+Let $r_{0}=b-Ax_{0}$ denote the residual for an initial approximation
+$x_{0}$. Let $\mathcal{K}_{m}:=\mathcal{K}_{m}(A,r_{0})$. We seek
+to minimize the residual on the affine subspace $x_{0}+\mathcal{K}_{m}$
+of dimension $m$. 
+\begin{defn}
+Choose $v_{1}=r_{0}/\|r_{0}\|$ for the Arnoldi basis, and let $\beta:=\|r_{0}\|$.
+Any vector in $x_{0}+\mathcal{K}_{m}$ can be written as $x=x_{0}+V_{m}y$,
+where $y\in\mathbb{R}^{m}$. By the above relation, the objective
+is given as: \cite[6.5.1]{Saad-2003}
+\begin{align*}
+J(y) & =\|b-A(x_{0}+V_{m}y)\|_{2}=\|r_{0}-AV_{m}y\|_{2}\\
+ & =\|\beta v_{1}-V_{m+1}\overline{H}_{m}y\|_{2}.
+\end{align*}
+By orthonormality of $V_{m+1}$ column vectors, $J(y)=\|\beta e_{1}-\overline{H}_{m}y\|$.
+The \textbf{GMRES approximation} is then the unique vector  of $x_{0}+\mathcal{K}_{m}$
+which minimizes $J$.  
+\end{defn}
+This results in the following algorithm: \cite[Algorithm 6.9]{Saad-2003}
+
+\begin{algorithm}[h]
+Compute $r_{0}=b-Ax_{0}$, $\beta:=\|r_{0}\|_{2}$, and $v_{1}:=r_{0}/\beta$
+
+For $j=1,2,\ldots,m$ Do:
+
+\hspace{2em}$\langle$ step $n$ of Arnoldi iteration, Algorithm
+\ref{alg:Arnoldi-Modified-Gram-Schmidt} $\rangle$
+
+EndDo
+
+Define the $(m+1)\times m$ Hessenberg matrix $\overline{H}_{m}=\{h_{ij}\}_{1\leq i\leq m+1,1\leq j\leq m}$
+
+Compute $y_{m}$ the minimizer of $\|\beta e_{1}-\overline{H}_{m}y\|_{2}$
+and $x_{m}=x_{0}+V_{m}y_{m}$\caption{GMRES\label{alg:GMRES}}
+\end{algorithm}
+
+Computing $y_{m}$ is an $(m+1)\times m$ matrix least squares problem
+with Hessenberg structure that can be solved via QR factorization
+in the usual manner, at the cost of $\mathcal{O}(m^{2})$ operations.
+To save further work, rather than construct QR factorizations of the
+successive matrices $\overline{H}_{1},\overline{H}_{2},\ldots$ independently,
+we can use an updating process to get the QR factorization of $\overline{H}_{m}$
+from that of $\overline{H}_{m-1}$. Doing so requires a single \textbf{Givens
+rotation} and $\mathcal{O}(m)$ work \cite[Mechanics of GMRES]{Trefethen-1997}.
+
+This approach also enables obtaining the residual norm of the approximate
+solution without computing $x_{k}$, thus allowing to decide when
+to stop the algorithm inexpensively \cite[3.2]{Saad-1986}. Saad \cite{Saad-1986,Saad-2003}
+gives the detailed implementation.
+
+Consider now the algorithm from a practical viewpoint. As $m$ increases,
+the computational cost increases at least as $\mathcal{O}(m^{2}n)$
+because of the Gram-Schmidt orthogonalization. The memory cost increases
+as $\mathcal{O}(mn)$. For large $n$ this limits the largest value
+of $m$ that can be used. One remedy is to restart the algorithm periodically
+\cite[6.4.1, 6.5.5]{Saad-2003}. This is the \textbf{restarted GMRES}
+or GMRES(m) algorithm. Note that GMRES(m) does not necessarily converge,
+unless the matrix $A$ is positive definite \cite[3.4]{Saad-1986}.
+
+\section{Convergence of GMRES\label{sec:Convergence-of-GMRES}}
+
+Because $\|r_{m}\|$ is as small as possible for the subspace $\mathcal{K}_{m}$,
+by enlarging $\mathcal{K}_{m}$ to the space $\mathcal{K}_{m+1}$
+we can only decrease the residual norm, or at worst leave it unchanged.
+Thus we observe that GMRES converges monotically: $\|r_{m+1}\|\leq\|r_{m}\|$.
+After $n$ steps (for an $n\times n$ problem), we have $\mathcal{K}_{n}=\mathbb{C}^{n}$
+and the full GMRES algorithm is guaranteed to converge. However, for
+GMRES to be useful, it must converge to satisfactory precision in
+$n\ll m$ steps \cite[p.270]{Trefethen-1997}.
+
+To obtain more useful information about convergence, we must turn
+to the following problem. The iterate $x_{m}\in x_{0}+\mathcal{K}_{m}$
+can be written as $x_{m}=x_{0}+q(A)r_{0}$, where $q$ is a polynomial
+of degree $m-1$. 
+
+Furthermore, as $x_{m}$ minimizes $\|r_{m}\|=\|b-Ax_{m}\|$ in the
+affine subspace $x_{0}+\mathcal{K}_{m}$, we have $x_{m}=x_{0}+q_{m}(A)r_{0}$,
+where $q_{m}$ is the polynomial that solves: \cite[Lemma 6.31]{Saad-2003}
+\begin{align*}
+\|r_{m}\| & =\|b-A(x_{0}+q_{m}(A)r_{0})\|=\min_{q\in P_{m-1}}\|(I-Aq(A))r_{0}\|\\
+ & =\min_{p\in P_{m},p(0)=1}\|p(A)r_{0}\|.
+\end{align*}
+
+The polynomial $p$ is determined by GMRES. We can show:
+\begin{thm}[{\cite[Proposition 6.32]{Saad-2003} }]
+Suppose $A$ is diagonalizable, satisfying $A=X\Lambda X^{-1}$ with
+$\Lambda=\text{diag}\{\lambda_{1},\lambda_{2},\ldots,\lambda_{n}\}$
+is the diagonal matrix of eigenvalues. We have the following upper
+bound on the residual:
+\[
+\|r_{m}\|\leq\kappa_{2}(X)\,\min_{p\in\mathbb{P}_{m},p(0)=1}\max|p(\lambda_{i})|.
+\]
+\end{thm}
+This theorem can be summarized in words as follows. If $A$ is not
+too far from normal in the sense that $\mathcal{K}(X)$ is not too
+large, and if properly normalized degree $m$ polynomials can be found
+whose size on the spectrum $\Lambda(A)$ decreases quickly with $m$,
+then GMRES converges quickly \cite[p.271]{Trefethen-1997}.
+\begin{example}
+Let $n=4000$, with entries sampled from $\mathcal{N}(2,0.5/\sqrt{n})$.
+The eigenvalues are roughly uniformly distributed in the disk of radius
+$\frac{1}{2}$ centered at $z=2$. $\|p(A)\|$ is then approximately
+minimized by $p(z)=(1-z/2)^{m}$, with a convergence rate of $4^{-m}$
+\cite{Trefethen-1997}.
+\end{example}
+\begin{cor}[\cite{Saad-1986}]
+Suppose $A$ is positive real with symmetric part $M=\frac{1}{2}(A+A^{T})$.
+We have the following upper bound on the residual:
+\[
+\|r_{m}\|\leq\left(1-\frac{\lambda_{\min}(1/2(A^{T}+A))^{2}}{\lambda_{\max}(A^{T}A)}\right)^{\nicefrac{m}{2}}\|r_{0}\|.
+\]
+\end{cor}
+In particular, if $A$ is symmetric positive definite, we have:
+\[
+\|r_{m}\|\leq\left(\frac{\kappa(A)^{2}-1}{\kappa(A)^{2}}\right)^{\nicefrac{m}{2}}\|r_{0}\|,
+\]
+where $\kappa=\|A\|\|A^{-1}\|$ denotes the condition number of $A$.
+
+
+\section{Polynomial preconditioning\label{sec:Polynomial-preconditioning}}
+
+For any nonsingular $n\times n$ matrix $M$, the system $M^{-1}Ax=M^{-1}b$
+has the same solution as the nonsingular system $Ax=b$. Solving this
+system however depends on the properties of $M^{-1}A$, and may require
+fewer steps to converge than the original system \cite[10.1]{Saad-2003}.
+We call $M$ the \textbf{preconditioner}.
+
+$M$ should meet the following requirements: 
+\begin{itemize}
+\item $M$ lies between $M=A$ (for the equally hard to solve system $x=A^{-1}b$)
+and $M=I$ (for the original system $Ax=b)$.
+\item $M^{-1}$ should be inexpensive to apply to an arbitrary vector.
+\item $M$ is ``close enough'' to $A$, in the sense that the preconditioned
+system $M^{-1}Ax=M^{-1}b$ converges more quickly than the system
+$Ax=b$. Specifically, we want $\|I-M^{-1}A\|$ to be small and the
+eigenvalues of $M^{-1}A$ close to 1, or clustered around some other
+value \cite[Lecture 40]{Trefethen-1997}. 
+\end{itemize}
+With \textbf{polynomial preconditioning}, we approximate $M^{-1}=s(A)$
+directly with a polynomial $s$, typically of low degree $d$. The
+original system is then replaced by the preconditioned system $s(A)Ax=s(A)b$. 
+
+In this system, the matrix $s(A)$ does not need to be formed explicitly:
+$s(A)v$ can be computed for any vector $v$ from a sequence of matrix-by-vector
+products \cite[12.3]{Saad-2003}. In particular, \textbf{Horner's
+method} computes $s(A)v$ with $d$ matrix-vector products: 
+\begin{align*}
+s(A)v & =s_{d+1}A^{d}v+s_{d}A^{d-1}v+\cdots+s_{1}v\\
+ & =A(A\cdots(s_{d+1}Av+s_{d}v)+\cdots+s_{2}v)+s_{1}v.
+\end{align*}
+
+Note that a polynomial preconditioner can be combined with other preconditioners
+$\tilde{M}$, such as ILU($k$), by solving the system:
+\[
+s(\tilde{M}^{-1}A)\tilde{M}^{-1}A=s(\tilde{M}^{-1}A)\tilde{M}^{-1}b.
+\]
+
+We now compute a polynomial preconditioner related to the GMRES polynomial.
+Unlike methods such as \textbf{Chebyshev polynomials} or \textbf{least
+squares polynomials}, which use estimates of the spectrum of $A$
+\cite[12.3]{Saad-2003}, knowledge of the spectrum is required \cite{Liu-2015}.
+
+GMRES computes a polynomial $p(A)$ corresponding to a minimal residual
+$\|p(A)r_{0}\|=\|(I-Aq(A))r_{0}\|$. We want to compute the coefficients
+of $q(A)$ for a given degree $d$ instead. Denote this polynomial
+by $M^{-1}=s(A)$ as above, and let $v_{0}\neq0$. We solve:
+\[
+\min\|(I-M^{-1}A)v_{0}\|=\min_{q\in\mathbb{P}_{d}}\|v_{0}-Aq(A)v_{0}\|
+\]
+by building a power basis $Y=\{v_{0},Av_{0},\ldots,A^{d}v_{0}\}$,
+and solving the normal equations 
+\[
+(AY)^{T}AYy=(AY)v_{0}.
+\]
+
+The elements of $y$ are the coefficients of $M^{-1}$. Note the
+following:
+\begin{itemize}
+\item The method becomes unstable as the columns of $Y$ lose linear independence,
+but its results are generally sufficient for low-degree (up to $d=10$)
+polynomials \cite{Liu-2015}.
+\item The coefficients of the polynomial depend on the choice of $v_{0}$.
+Using a randomly chosen vector may be preferable in this case \cite{Loe-2019}.
+\item The matrix $AY$ is a (sparse) matrix of dimension $n\times(d+1)$,
+and takes $d+1$ matrix-vector products to compute. The product $(AY)^{T}AY$
+is of dimension $(d+1)\times(d+1)$ and requires a sparse matrix-matrix
+multiplication. With $d\ll n$, the system $(AY)^{T}AYy=(AY)v_{0}$
+can then be solved through a direct method such as LU decomposition.
+\end{itemize}
+
+\section{Numerical experiments\label{sec:Numerical-experiments}}
+
+We consider the following problems. Some of these problems are very
+difficult for GMRES to solve, and, considering the small dimension
+$n$, may be better suited for direct solvers. They nonetheless give
+a good indication of the difficulties involved when using GMRES.
+
+For every problem, the right-hand side is sampled from $\mathcal{N}(0,1)$,
+the real normal distribution of mean $0$ and standard deviation 1.
+Orthonormalization was done using the Modified Gram-Schmidt procedure.
+The vector for computing the power basis $Y$ is sampled from $\mathcal{N}(-1,1)$.
+\begin{enumerate}
+\item \label{enu:problem-1}The \textbf{Circle Eigenvalue Matrix} of size
+$n=2000$, a block diagonal matrix with $2\times2$ blocks:
+\[
+\begin{pmatrix}1+\cos(\alpha) & \sin(\alpha)\\
+-\sin(\alpha) & 1+\cos(\alpha)
+\end{pmatrix},
+\]
+$\alpha\in2k\frac{\pi}{n},\ k\in\{0,2,\ldots,n-2\}$. All eigenvalues
+of this matrix are on the unit circle on the complex plane with center
+$(1,0)$ \cite{Liu-2015}. The condition number is estimated at $6.3662\times10^{3}$.
+\item \label{enu:problem-2}The \textbf{Bidiagonal Matrix} of size $n=5000$
+with diagonal elements 0.1, 0.2, 0.3, $\ldots,$ 0.9, 1, 2, 3, $\ldots,$
+4990, 4991 (\emph{BiDiag1}). The superdiagonal elements are all set
+to 0.2 \cite{Liu-2015}. The symmetric part is positive definite,
+and the condition number estimated at $8.4589\times10^{4}$.  
+\item \label{enu:problem-3}As problem \ref{enu:problem-2}, but the diagonal
+elements are set to 10, 11, 12, $\ldots,$ 5009 (\emph{BiDiag2}).
+The condition number is estimated at $5.0137\times10^{3}$. 
+\item \label{enu:problem-4}\textbf{S1RMQ4M1} (Matrix Market), a real symmetric
+positive definite matrix of size $n=5489$. The matrix has high condition
+number, estimated at $3.21\times10^{6}$ by Matrix Market.
+\item \label{enu:problem-5}\textbf{E20R0100} (Matrix Market), a real non-symmetric
+indefinite matrix of size $n=4241$. The matrix has high condition
+number, estimated at $2.15\times10^{10}$ by Matrix Market. This matrix
+serves as a counter-example for classical preconditioners such as
+ILU, where their application may result in a worse condition number. 
+\item \label{enu:problem-6}\textbf{SHERMAN5} (Matrix Market), a real non-symmetric
+matrix of size $n=3312$. The condition number is estimated at $3.9\times10^{5}$
+by Matrix Market. This matrix serves as an example where polynomial
+preconditioning can worsen convergence.
+\end{enumerate}
+We use GMRES(20) for the Bidiagonal Matrix, GMRES(50) for SIRMQ4M1,
+and GMRES(100) for E20R0100 and the Circle Eigenvalue Matrix. The
+maximum of iterations is 5000 for all problems except for SHERMAN5,
+which uses a maximum of 20,000 iterations. Tolerance is set to $\varepsilon=10^{-8}$
+for the relative residual $\frac{\|b-Ax_{m}\|}{\|b\|}$. Polynomials
+of degree 3, 5, 7, and 10 are used for most problems. Implementation
+was done in MATLAB, based on \texttt{gmres.m} from the Netlib Repository.
+ 
+
+We observe the following:
+\begin{itemize}
+\item For all problems considered, preconditioning reduced the condition
+number, typically by one order of magnitude for polynomials of degree
+10 (Figure \ref{fig:cond_circle_evm}).
+\item Apart from the Circle Eigenvalue Matrix, the polynomial preconditioner
+had very small coefficients for its higher-order terms (compare table
+\ref{tab:E20R0100}, \ref{tab:S1RMQ4M1}). This effect may be due
+to the ill-conditioned problem of computing coefficients via the normal
+equations with a power basis \cite[III]{Loe-2019}. This corresponded
+with LAPACK reporting a very small RCOND for these problems ($<10^{-17}$
+for E20R011, $<10^{-25}$ for S1RMQ4M1).
+\item The spectrum of S1RMQ4M1 preconditioned with degree 7 or 9 polynomial
+had negative eigenvalues. These eigenvalues were outliers, and the
+behavior was not observed for other degree polynomials. One may however
+expect that $M^{-1}A$, while symmetric, is in general not positive
+definite.
+\item For each problem, the preconditioner mapped the spectrum to cluster
+eigenvalues around 1. The effect was especially noticeable for E20R0100
+and degree 10 polynomials.
+\item For the Bidiagonal Matrix and S1RMQ4M1, it sufficed to use degree
+3 polynomials to ensure convergence to the given tolerance (Figure
+\ref{fig:convergence_s1rmq4m1}). More difficult problems required
+higher degree polynomials. In particular, convergence for E20R0100
+stalled for degree $<10$ polynomials (Figure \ref{fig:convergence_e20r0100}).
+With improved convergence, the amount of inner products decreased
+accordingly (Figure \ref{fig:no_inner_products}).
+\item Apart from the Bidiagonal Matrix, the amount of SpMVs increased by
+\textasciitilde 3x (for S1RMQ4M1) up to \textasciitilde 6x (for
+the Circle Eigenvalue Matrix). For E20R0100, there was an up to \textasciitilde 8x
+increase, but with fast convergence of a degree 10 preconditioner,
+latter only saw an increase of \textasciitilde 1.25x.
+\item Results for SHERMAN5 varied widely between samples of $v_{0}$ of
+$b$. Degree 7 polynomials as suggested in Loe \cite{Loe-2019} improved
+convergence for some samples, but worsened it for others. Degree 12
+and 15 polynomials had more consistent results, but were still not
+guaranteed to improve convergence.
+\end{itemize}
+
+\section*{Conclusion}
+
+Polynomial preconditioners can be used along with standard preconditioning,
+and are effective to implement on parallel systems as a series of
+sparse matrix-vector products. We have introduced a polynomial preconditioner
+related to the minimum residual (GMRES) polynomial. 
+
+To compute the coefficient of the polynomial, no knowledge of the
+spectrum of $A$ is required. The method, which bases on computing
+a power basis $(A^{i}v_{0})$ is however ill-conditioned, which limits
+the degree of the polynomial.
+
+Applying this preconditioner to several difficult problems, including
+E20R0100, shows it can be used to significantly improve convergence
+of GMRES. In particular, on parallel systems, synchronization points
+from inner products in each GMRES step are reduced. Care should be
+taken for problems such as SHERMAN5, where effectiveness varies strongly
+between the random vector samples $v_{0}$ used for computing the
+preconditioner.
+\begin{thebibliography}{10}
+\bibitem{Saad-1986}Y. SAAD, M. H. Schultz, \emph{GMRES: A generalized
+minimal residual algorithm for solving nonsymmetric linear systems,}
+SIAM J. Sci. Stat. Comput. Vol. 7, No. 3, July 1986.
+
+\bibitem{Magoules-2015}F. MAGOULES, F. ROUX, G. HOUZEAUX, \emph{Parallel
+Scientific Computing, }Wiley, 2015.
+
+\bibitem{Saad-2003}Y. SAAD, \emph{Iterative Methods for Sparse Linear
+Systems}, SIAM, 2003.
+
+\bibitem{Trefethen-1997}L. N. TREFETHEN, D. BAU, \emph{Numerical
+Linear Algebra}, SIAM, 1997.
+
+\bibitem{Benzi-2005}M. BENZI, G. H. GOLUB, J. LIESEN, \emph{Numerical
+solution of saddle point problems, }Acta Numerica (2005), pp. 1-137.
+
+\bibitem{Rozlo=00017En=0000EDk-2018}M. ROZLO´NÍK, \emph{Saddle-Point
+Problems and Their Iterative Solution}, Birkhäuser, 2018.
+
+\bibitem{Barret-1994}R. BARRET et. al., \emph{Templates for the Solution
+of Linear Sytems: Building Blocks for Iterative Methods}, SIAM, 1994.
+
+\bibitem{Liu-2015}Q. LIU, R. B. MORGAN, W. WILCOX, \emph{Polynomial
+Preconditioned GMRES and GMRES-DR}, SIAM J. Sci. Comput. Vol. 37,
+No. 5, pp. S407-S428, 2015.
+
+\bibitem{Loe-2019}J. A. LOE, H. K. THORNQUIST, E. G. BOMAN, \emph{Polynomial
+Preconditioned GMRES to Reduce Communication in Parallel Computing},
+arXiv, Oct 2019.
+
+\bibitem{Hernandez-2005}V. HERNANDÉZ, J. E. ROMÁN, A. TOMAS, \emph{A
+Parallel Variant of the Gram-Schmidt Process with Reorthogonalization},
+Proceedings of the International Conference Parco 2005, 13-16 September
+2005.
+\end{thebibliography}
+
+\appendix{}
+
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[width=0.5\textwidth]{example_1_spec}
+\par\end{centering}
+\caption{Spectrum of $A$ (blue) and $M^{-1}A$ (orange, $d=10$) for the Circle
+Eigenvalue Matrix\label{fig:spec_circle_evm}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[width=0.5\textwidth]{example_5_spec}
+\par\end{centering}
+\caption{Spectrum of $A$ (blue) and $M^{-1}A$ (orange, $d=10$) for E20R0100\label{fig:spec_e20r0100}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[width=0.5\textwidth]{example_6_condition}
+\par\end{centering}
+\caption{Condition numbers for E20R0100 and SHERMAN5\label{fig:cond_circle_evm}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[width=0.5\textwidth]{example_1_gmres}
+\par\end{centering}
+\caption{Convergence of the Circle Eigenvalue Matrix, GMRES(100)\label{fig:convergence_circle_evm}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[width=0.5\textwidth]{example_4_gmres}
+\par\end{centering}
+\caption{Convergence of S1RMQ4M1, GMRES(50) \label{fig:convergence_s1rmq4m1}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[width=0.5\textwidth]{example_5_gmres}
+\par\end{centering}
+\caption{Convergence of E20R0100, GMRES(100) \label{fig:convergence_e20r0100}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[width=0.5\textwidth]{example_6_gmres}
+\par\end{centering}
+\caption{Convergence of SHERMAN5, GMRES(100) \label{fig:convergence_SHERMAN5}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[width=0.5\textwidth]{inner_product_count}
+\par\end{centering}
+\caption{Number of inner products for $\varepsilon=10^{-8}$ and a maximum
+of 5000 iterations \label{fig:no_inner_products}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[width=0.5\textwidth]{spmvs_count}
+\par\end{centering}
+\caption{Number of SpMVs for $\varepsilon=10^{-8}$ and a maximum of 5000 iterations}
+\end{figure}
+
+\begin{table}[h]
+\begin{centering}
+\begin{tabular}{|r|r|r|r|}
+\hline 
+\textbf{deg 3} & \textbf{deg 5} & \textbf{deg 7} & \textbf{deg 10}\tabularnewline
+\hline 
+\hline 
+-0.1945 & -0.1376 & -0.1084 & 0.0783\tabularnewline
+\hline 
+0.9805 & 0.9684 & 0.9778 & -0.9440\tabularnewline
+\hline 
+-1.9805 & -2.9234 & -3.9207 & 5.2195\tabularnewline
+\hline 
+2.0000 & 4.9100 & 9.1758 & -17.4999\tabularnewline
+\hline 
+ & -4.9550 & -13.8125 & 39.6248\tabularnewline
+\hline 
+ & 3.0000 & 13.8695 & -63.8276\tabularnewline
+\hline 
+ &  & -9.2898 & 74.9846\tabularnewline
+\hline 
+ &  & 4.0000 & -64.7198\tabularnewline
+\hline 
+ &  &  & 40.7217\tabularnewline
+\hline 
+ &  &  & -18.2159\tabularnewline
+\hline 
+ &  &  & 5.5000\tabularnewline
+\hline 
+\end{tabular}
+\par\end{centering}
+\medskip{}
+
+\caption{Coefficients for Circle Eigenvalue Matrix preconditioner \label{tab:circle_evm}}
+\end{table}
+
+\begin{table}[h]
+\begin{centering}
+\begin{tabular}{|r|r|r|r|}
+\hline 
+\textbf{deg 3} & \textbf{deg 5} & \textbf{deg 7} & \textbf{deg 10}\tabularnewline
+\hline 
+\hline 
+$-0.0012$ & $-0.0001$ & $-3.4021$e-06 & $3.2267$e-08\tabularnewline
+\hline 
+$0.0337$ & $0.0029$ & $1.8944$e-04 & $-2.4589$e-06\tabularnewline
+\hline 
+$-0.3126$ & $-0.0466$ & $-0.0044$ & $8.1994$e-05\tabularnewline
+\hline 
+$1.0714$ & $0.3634$ & $0.0540$ & $-0.0016$\tabularnewline
+\hline 
+ & $-1.3908$ & $-0.3836$ & $0.0191$\tabularnewline
+\hline 
+ & $2.2885$ & $1.5686$ & $-0.1526$\tabularnewline
+\hline 
+ &  & $-3.4603$ & $0.8125$\tabularnewline
+\hline 
+ &  & $3.4870$ & $-2.8310$\tabularnewline
+\hline 
+ &  &  & $6.1825$\tabularnewline
+\hline 
+ &  &  & $-7.7796$\tabularnewline
+\hline 
+ &  &  & $4.7860$\tabularnewline
+\hline 
+\end{tabular}
+\par\end{centering}
+\medskip{}
+
+\caption{Coefficients for E20R0100 preconditioner \label{tab:E20R0100}}
+\end{table}
+
+\begin{table}[h]
+\begin{centering}
+\begin{tabular}{|r|r|r|r|}
+\hline 
+\textbf{deg 3} & \textbf{deg 5} & \textbf{deg 7} & \textbf{deg 10}\tabularnewline
+\hline 
+\hline 
+$3.0913$e-16 & $1.3545$e-26 & $6.3270$e-37 & $-1.8078$e-52\tabularnewline
+\hline 
+$-1.3733$e-10 & $-1.0459$e-20 & $-6.9969$e-31 & $2.9462$e-46\tabularnewline
+\hline 
+$2.2131$e-05 & $3.8068$e-15 & $4.0678$e-25 & $-2.7248$e-40\tabularnewline
+\hline 
+ & $-6.6028$e-10 & $-1.3326$e-19 & $1.5744$e-34\tabularnewline
+\hline 
+ & $4.8290$e-05 & $2.4458$e-14 & $-5.8966$e-29\tabularnewline
+\hline 
+ &  & $-2.3425$e-09 & $1.4375$e-23\tabularnewline
+\hline 
+ &  & $9.7378$e-05 & $-2.2304$e-18\tabularnewline
+\hline 
+ &  &  & $2.0865$e-13\tabularnewline
+\hline 
+ &  &  & $-1.0575$e-08\tabularnewline
+\hline 
+ &  &  & $2.3067$e-04\tabularnewline
+\hline 
+\end{tabular}
+\par\end{centering}
+\medskip{}
+
+\caption{Coefficients for S1RMQ4M1 preconditioner \label{tab:S1RMQ4M1}}
+\end{table}
+
+\end{document}
