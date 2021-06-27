@@ -4,8 +4,8 @@ n = 3312;
 
 %% RNG
 %seed = 42;
-%seed = 1892;
-seed = 666;
+seed = 1892;
+%seed = 666;
 rng(seed)
 
 %% Input parameters

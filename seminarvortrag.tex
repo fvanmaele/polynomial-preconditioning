@@ -2,8 +2,9 @@
 %% Do not edit unless you really know what you are doing.
 \documentclass[twocolumn,journal]{IEEEtran}
 \usepackage[T1]{fontenc}
-\usepackage[latin9]{inputenc}
+\usepackage[utf8]{inputenc}
 \usepackage{float}
+\usepackage{booktabs}
 \usepackage{units}
 \usepackage{amsmath}
 \usepackage{amsthm}
@@ -59,9 +60,9 @@
 \begin{document}
 \title{Analysis of Polynomial Preconditioners}
 \author{Ferdinand Vanmaele\\
-Universit‰t Heidelberg\\
+Universit√§t Heidelberg\\
 Email: Vanmaele@stud.uni-heidelberg.de}
-\markboth{Universit‰t Heidelberg, ziti, Advanced Seminar}{Ferdinand Vanmaele}
+\markboth{Universit√§t Heidelberg, ziti, Advanced Seminar}{Ferdinand Vanmaele}
 \maketitle
 \begin{abstract}
 We explore solving large systems of linear equations using the GMRES
@@ -589,8 +590,8 @@ Linear Algebra}, SIAM, 1997.
 \bibitem{Benzi-2005}M. BENZI, G. H. GOLUB, J. LIESEN, \emph{Numerical
 solution of saddle point problems, }Acta Numerica (2005), pp. 1-137.
 
-\bibitem{Rozlo=00017En=0000EDk-2018}M. ROZLO¥NÕK, \emph{Saddle-Point
-Problems and Their Iterative Solution}, Birkh‰user, 2018.
+\bibitem{Rozlo=00017En=0000EDk-2018}M. ROZLO≈ΩN√çK, \emph{Saddle-Point
+Problems and Their Iterative Solution}, Birkh√§user, 2018.
 
 \bibitem{Barret-1994}R. BARRET et. al., \emph{Templates for the Solution
 of Linear Sytems: Building Blocks for Iterative Methods}, SIAM, 1994.
@@ -603,7 +604,7 @@ No. 5, pp. S407-S428, 2015.
 Preconditioned GMRES to Reduce Communication in Parallel Computing},
 arXiv, Oct 2019.
 
-\bibitem{Hernandez-2005}V. HERNAND…Z, J. E. ROM¡N, A. TOMAS, \emph{A
+\bibitem{Hernandez-2005}V. HERNAND√âZ, J. E. ROM√ÅN, A. TOMAS, \emph{A
 Parallel Variant of the Gram-Schmidt Process with Reorthogonalization},
 Proceedings of the International Conference Parco 2005, 13-16 September
 2005.
@@ -635,111 +636,109 @@ Eigenvalue Matrix\label{fig:spec_circle_evm}}
 
 \begin{figure}[h]
 \begin{centering}
-\includegraphics[width=0.5\textwidth]{example_1_gmres}
+\includegraphics[width=0.4\textwidth]{example_1_gmres}
 \par\end{centering}
 \caption{Convergence of the Circle Eigenvalue Matrix, GMRES(100)\label{fig:convergence_circle_evm}}
 \end{figure}
 
 \begin{figure}[h]
 \begin{centering}
-\includegraphics[width=0.5\textwidth]{example_5_gmres}
+\includegraphics[width=0.4\textwidth]{example_5_gmres}
 \par\end{centering}
 \caption{Convergence of E20R0100, GMRES(100) \label{fig:convergence_e20r0100}}
 \end{figure}
 
 \begin{figure}[h]
 \begin{centering}
-\includegraphics[width=0.5\textwidth]{example_6_gmres_seed_42}
+\includegraphics[width=0.4\textwidth]{example_6_gmres_seed_42}
 \par\end{centering}
 \caption{Convergence of SHERMAN5, GMRES(100), seed = 42 \label{fig:convergence_SHERMAN5-1}}
 \end{figure}
 
 \begin{figure}[h]
 \begin{centering}
-\includegraphics[width=0.5\textwidth]{example_6_gmres_seed_1892}
+\includegraphics[width=0.4\textwidth]{example_6_gmres_seed_1892}
 \par\end{centering}
 \caption{Convergence of SHERMAN5, GMRES(100), seed = 1892 \label{fig:convergence_SHERMAN5-2}}
-
 \end{figure}
 
 \begin{table}[h]
-
+\begin{centering}
+\begin{tabular}{cccccc}
+\toprule 
+{\footnotesize{}SpMVs \textbackslash{} deg} & \textbf{\footnotesize{}deg = 0} & \textbf{\footnotesize{}deg = 3} & \textbf{\footnotesize{}deg = 5} & \textbf{\footnotesize{}deg = 7} & \textbf{\footnotesize{}deg = 10}\tabularnewline
+\midrule
+\midrule 
+{\footnotesize{}CEM} & {\footnotesize{}20,401} & {\footnotesize{}50,886} & {\footnotesize{}36,715} & {\footnotesize{}29,565} & {\footnotesize{}20,622}\tabularnewline
+\midrule 
+{\footnotesize{}BiDiag1} & {\footnotesize{}20,013} & {\footnotesize{}7,594} & {\footnotesize{}5,631} & {\footnotesize{}4,491} & {\footnotesize{}2,862}\tabularnewline
+\midrule 
+{\footnotesize{}BiDiag2} & {\footnotesize{}284} & {\footnotesize{}255} & {\footnotesize{}273} & {\footnotesize{}274} & {\footnotesize{}209}\tabularnewline
+\midrule 
+{\footnotesize{}S1RMQ4M1} & {\footnotesize{}20,801} & {\footnotesize{}82,001} & {\footnotesize{}73,079} & {\footnotesize{}55,111} & {\footnotesize{}37,070}\tabularnewline
+\midrule 
+{\footnotesize{}E20R0100} & {\footnotesize{}20,401} & {\footnotesize{}81,001} & {\footnotesize{}121,401} & {\footnotesize{}76,855} & {\footnotesize{}11,087}\tabularnewline
+\bottomrule
+\end{tabular}\medskip{}
+\par\end{centering}
 \caption{SpMVs for polynomials of different degree\label{tab:SpMVs}}
 
 \end{table}
 
 \begin{table}[h]
-
+\begin{centering}
+\begin{tabular}{cccccc}
+\toprule 
+{\footnotesize{}Inner p. \textbackslash{} deg} & \textbf{\footnotesize{}deg = 0} & \textbf{\footnotesize{}deg = 3} & \textbf{\footnotesize{}deg = 5} & \textbf{\footnotesize{}deg = 7} & \textbf{\footnotesize{}deg = 10}\tabularnewline
+\midrule
+\midrule 
+{\footnotesize{}CEM} & {\footnotesize{}1,010,000} & {\footnotesize{}633,330} & {\footnotesize{}304,176} & {\footnotesize{}183,285} & {\footnotesize{}92,385}\tabularnewline
+\midrule 
+{\footnotesize{}BiDiag1} & {\footnotesize{}190,981} & {\footnotesize{}18,711} & {\footnotesize{}9,261} & {\footnotesize{}5,526} & {\footnotesize{}2,541}\tabularnewline
+\midrule 
+{\footnotesize{}BiDiag2} & {\footnotesize{}2,691} & {\footnotesize{}630} & {\footnotesize{}423} & {\footnotesize{}288} & {\footnotesize{}153}\tabularnewline
+\midrule 
+{\footnotesize{}S1RMQ4M1} & {\footnotesize{}510,000} & {\footnotesize{}510,000} & {\footnotesize{}303,451} & {\footnotesize{}171,553} & {\footnotesize{}84,051}\tabularnewline
+\midrule 
+{\footnotesize{}E20R0100} & {\footnotesize{}1,010,000} & {\footnotesize{}1,010,000} & {\footnotesize{}1,010,000} & {\footnotesize{}479,750} & {\footnotesize{}50,203}\tabularnewline
+\bottomrule
+\end{tabular}\medskip{}
+\par\end{centering}
 \caption{Inner products for polynomials of different degree\label{tab:Inner-products}}
 
 \end{table}
 
 \begin{table}[h]
 \begin{centering}
-\begin{tabular}{|r|r|r|r|}
-\hline 
-\textbf{deg 3} & \textbf{deg 5} & \textbf{deg 7} & \textbf{deg 10}\tabularnewline
-\hline 
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
-\end{tabular}
-\par\end{centering}
-\medskip{}
-
-\caption{Coefficients for Circle Eigenvalue Matrix preconditioner \label{tab:circle_evm}}
-\end{table}
-
-\begin{table}[h]
-\begin{centering}
-\begin{tabular}{|r|r|r|r|}
-\hline 
-\textbf{deg 3} & \textbf{deg 5} & \textbf{deg 7} & \textbf{deg 10}\tabularnewline
-\hline 
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
-\end{tabular}
+{\footnotesize{}}%
+\begin{tabular}{llll}
+\toprule 
+\textbf{\footnotesize{}Ôªødeg = 3} & \textbf{\footnotesize{}deg = 5} & \textbf{\footnotesize{}deg = 7} & \textbf{\footnotesize{}deg = 10}\tabularnewline
+\midrule
+\midrule 
+{\footnotesize{}-1.91E-22} & {\footnotesize{}-4.35E-33} & {\footnotesize{}-1.22E-43} & {\footnotesize{}2.68E-59}\tabularnewline
+\midrule 
+{\footnotesize{}2.64E-16} & {\footnotesize{}8.96E-27} & {\footnotesize{}3.35E-37} & {\footnotesize{}-1.01E-52}\tabularnewline
+\midrule 
+{\footnotesize{}-1.21E-10} & {\footnotesize{}-7.04E-21} & {\footnotesize{}-3.78E-31} & {\footnotesize{}1.66E-46}\tabularnewline
+\midrule 
+{\footnotesize{}2.03E-05} & {\footnotesize{}2.64E-15} & {\footnotesize{}2.25E-25} & {\footnotesize{}-1.55E-40}\tabularnewline
+\midrule 
+ & {\footnotesize{}-4.83E-10} & {\footnotesize{}-7.60E-20} & {\footnotesize{}9.06E-35}\tabularnewline
+\midrule 
+ & {\footnotesize{}3.89E-05} & {\footnotesize{}1.45E-14} & {\footnotesize{}-3.44E-29}\tabularnewline
+\midrule 
+ &  & {\footnotesize{}-1.49E-09} & {\footnotesize{}8.52E-24}\tabularnewline
+\midrule 
+ &  & {\footnotesize{}6.97E-05} & {\footnotesize{}-1.35E-18}\tabularnewline
+\midrule 
+ &  &  & {\footnotesize{}1.30E-13}\tabularnewline
+\midrule 
+ &  &  & {\footnotesize{}-6.95E-09}\tabularnewline
+\midrule 
+ &  &  & {\footnotesize{}0.000166636}\tabularnewline
+\bottomrule
+\end{tabular}{\footnotesize\par}
 \par\end{centering}
 \medskip{}
 
@@ -748,32 +747,35 @@ Eigenvalue Matrix\label{fig:spec_circle_evm}}
 
 \begin{table}[h]
 \begin{centering}
-\begin{tabular}{|r|r|r|r|}
-\hline 
-\textbf{deg 3} & \textbf{deg 5} & \textbf{deg 7} & \textbf{deg 10}\tabularnewline
-\hline 
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
- &  &  & \tabularnewline
-\hline 
-\end{tabular}
+{\footnotesize{}}%
+\begin{tabular}{llll}
+\toprule 
+\textbf{\footnotesize{}Ôªødeg = 3} & \textbf{\footnotesize{}deg = 5} & \textbf{\footnotesize{}deg = 7} & \textbf{\footnotesize{}deg = 10}\tabularnewline
+\midrule
+\midrule 
+{\footnotesize{}-0.000713559} & {\footnotesize{}-3.13E-05} & {\footnotesize{}-1.46E-06} & {\footnotesize{}1.32E-08}\tabularnewline
+\midrule 
+{\footnotesize{}0.020874807} & {\footnotesize{}0.001343698} & {\footnotesize{}8.26E-05} & {\footnotesize{}-1.01E-06}\tabularnewline
+\midrule 
+{\footnotesize{}-0.208017788} & {\footnotesize{}-0.022528635} & {\footnotesize{}-0.001951907} & {\footnotesize{}3.42E-05}\tabularnewline
+\midrule 
+{\footnotesize{}0.810365394} & {\footnotesize{}0.185637964} & {\footnotesize{}0.024829464} & {\footnotesize{}-0.000666207}\tabularnewline
+\midrule 
+ & {\footnotesize{}-0.775251536} & {\footnotesize{}-0.183793499} & {\footnotesize{}0.008254609}\tabularnewline
+\midrule 
+ & {\footnotesize{}1.503994707} & {\footnotesize{}0.797409734} & {\footnotesize{}-0.067904472}\tabularnewline
+\midrule 
+ &  & {\footnotesize{}-1.935447001} & {\footnotesize{}0.375248046}\tabularnewline
+\midrule 
+ &  & {\footnotesize{}2.324425706} & {\footnotesize{}-1.378454817}\tabularnewline
+\midrule 
+ &  &  & {\footnotesize{}3.255175156}\tabularnewline
+\midrule 
+ &  &  & {\footnotesize{}-4.624826993}\tabularnewline
+\midrule 
+ &  &  & {\footnotesize{}3.470305855}\tabularnewline
+\bottomrule
+\end{tabular}{\footnotesize\par}
 \par\end{centering}
 \medskip{}
 
