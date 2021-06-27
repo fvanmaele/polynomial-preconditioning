@@ -2,19 +2,21 @@
 [A,rows,cols,entries,rep,field,symm] = mmread("e20r0100.mtx"); % sparse format
 n = 4241;
 
+%% RNG
+seed = 42;
+rng(seed);
+
 %% Input parameters
 x0 = zeros(length(A), 1);
 b = normrnd(0, 1, [n,1]);
 restart = 100;
 max_it = 200;
 tol = 1e-8;
-seed = 42;
 
 %%
 [x, error, iter, flag, resvec, spmvs, inps] = gmresArnoldi(A, x0, b, [], restart, max_it, tol);
 
 %% Polynomial preconditioning
-rng(seed)
 v0 = unifrnd(-1, 1, [n,1]);
 p = cell(10, 1);
 for deg = 1:10
@@ -22,10 +24,10 @@ for deg = 1:10
 end
 
 %% Solve preconditioned system (deg 3, 5, 7, 10)
-[x_p3, error_p3, iter_p3, flag_p3, resvec_p3, spmvs_3, inps_3] = gmresArnoldi(A, x0, b, p{3}, restart, max_it, tol);
-[x_p5, error_p5, iter_p5, flag_p5, resvec_p5, spmvs_5, inps_5] = gmresArnoldi(A, x0, b, p{5}, restart, max_it, tol);
-[x_p7, error_p7, iter_p7, flag_p7, resvec_p7, spmvs_7, inps_7] = gmresArnoldi(A, x0, b, p{7}, restart, max_it, tol);
-[x_p10, error_p10, iter_p10, flag_p10, resvec_p10, spmvs_10, inps_10] = gmresArnoldi(A, x0, b, p{10}, restart, max_it, tol);
+[x_p3, error_p3, iter_p3, flag_p3, resvec_p3, spmvs_3, inps_3] = gmresArnoldi_right_precond(A, x0, b, p{3}, restart, max_it, tol);
+[x_p5, error_p5, iter_p5, flag_p5, resvec_p5, spmvs_5, inps_5] = gmresArnoldi_right_precond(A, x0, b, p{5}, restart, max_it, tol);
+[x_p7, error_p7, iter_p7, flag_p7, resvec_p7, spmvs_7, inps_7] = gmresArnoldi_right_precond(A, x0, b, p{7}, restart, max_it, tol);
+[x_p10, error_p10, iter_p10, flag_p10, resvec_p10, spmvs_10, inps_10] = gmresArnoldi_right_precond(A, x0, b, p{10}, restart, max_it, tol);
 
 %%
 ax = axes;
@@ -57,17 +59,11 @@ hold on
 plot(specPA{10}, 'o')
 %axis([-0.5 2.5 -1.5 1.5])
 
-%% Preconditioned matrix
-PA = cell(10, 1);
-for deg = 1:10
-    PA{deg} = polyvalm([p{deg};0], A);
-end
-
 %% Condition number (estimate)
 condA = condest(A);
 condPA = cell(10, 1);
 for deg = 1:10
-    condPA{deg} = condest(PA{deg});
+    condPA{deg} = condest(polyvalm([p{deg};0], A));
 end
 
 %%

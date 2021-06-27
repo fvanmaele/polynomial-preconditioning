@@ -333,7 +333,7 @@ To address this issue, we consider preconditioned systems
 \begin_inset Formula $Ax=b$
 \end_inset
 
-, but may have faster convergence.
+, but may achieve faster convergence.
  Achieving a certain tolerance for the residual thus occurs in less GMRES
  steps (inner products), at the expense of more matrix-vector multiplications
  in every step.
@@ -492,7 +492,7 @@ noprefix "false"
  
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "sec:Polynomial-preconditioning"
+reference "sec:Preconditioning"
 plural "false"
 caps "false"
 noprefix "false"
@@ -1889,10 +1889,10 @@ literal "false"
 \end_layout
 
 \begin_layout Section
-Polynomial preconditioning
+Preconditioning
 \begin_inset CommandInset label
 LatexCommand label
-name "sec:Polynomial-preconditioning"
+name "sec:Preconditioning"
 
 \end_inset
 
@@ -1909,7 +1909,11 @@ For any nonsingular
 \end_inset
 
 , the system 
-\begin_inset Formula $M^{-1}Ax=M^{-1}b$
+\begin_inset Formula 
+\[
+M^{-1}Ax=M^{-1}b
+\]
+
 \end_inset
 
  has the same solution as the nonsingular system 
@@ -1917,7 +1921,7 @@ For any nonsingular
 \end_inset
 
 .
- Solving this system however depends on the properties of 
+ Solving this system depends on the properties of 
 \begin_inset Formula $M^{-1}A$
 \end_inset
 
@@ -1940,27 +1944,41 @@ literal "false"
 preconditioner
 \series default
 .
+ The preconditioner can be either applied to the left or right.
+ Latter leads to the system
+\begin_inset Formula 
+\[
+AM^{-1}u=b,\quad x\equiv M^{-1}u.
+\]
+
+\end_inset
+
+This amounts to making the change of variables 
+\begin_inset Formula $u=Mx$
+\end_inset
+
+, and solving the system with respect to the unknown 
+\begin_inset Formula $u$
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "9.1"
+key "Saad-2003"
+literal "false"
+
+\end_inset
+
+.
+ 
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula $M$
 \end_inset
 
- should meet the following requirements: 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Solving linear systems 
-\begin_inset Formula $My=c$
-\end_inset
-
- can be done quickly – relevant for polynomial preconditioning?
-\end_layout
-
-\end_inset
-
-
+ should meet the following requirements:
 \end_layout
 
 \begin_layout Itemize
@@ -2050,33 +2068,178 @@ important point for graphs later
 \end_layout
 
 \begin_layout Standard
-With 
-\series bold
-polynomial preconditioning
-\series default
-, we approximate 
-\begin_inset Formula $M^{-1}=s(A)$
+Note the following differences when preconditioning GMRES: 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "9.3"
+key "Saad-2003"
+literal "false"
+
 \end_inset
 
- directly with a polynomial 
-\begin_inset Formula $s$
+
+\end_layout
+
+\begin_layout Itemize
+Left preconditioning:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+builds an orthogonal basis of the Krylov subspace 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+shorten or put on same line?
+\end_layout
+
 \end_inset
 
-, typically of low degree 
-\begin_inset Formula $d$
+
+\begin_inset Formula 
+\[
+\text{span}\{r_{0},M^{-1}Ar_{0},\dots,(M^{-1}A)^{m-1}r_{0}\};
+\]
+
 \end_inset
 
-.
- The original system is then replaced by the preconditioned system 
-\begin_inset Formula $s(A)Ax=s(A)b$
-\end_inset
 
-.
+\end_layout
+
+\begin_layout Itemize
+obtains the residuals relative to the preconditioned system, i.e.
  
+\begin_inset Formula $M^{-1}(b-Ax_{m})$
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Itemize
+uses one preconditioning operation at the beginning of the outer loop, 
+\begin_inset Formula $r_{0}=M^{-1}(b-Ax_{0}$
+\end_inset
+
+).
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Right preconditioning:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+builds an orthogonal basis of the Krylov subspace 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+shorten or put on same line?
+\end_layout
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\text{span}\{r_{0},AM^{-1}r_{0},\dots,(AM^{-1})^{m-1}r_{0}\};
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+obtains the residuals relative to the initial system, i.e.
+ 
+\begin_inset Formula $b-Ax_{m}$
+\end_inset
+
+;
+\end_layout
+
+\begin_layout Itemize
+uses one preconditioning operation at the end of the outer loop, 
+\begin_inset Formula $x_{m}=x_{0}+M^{-1}V_{m}y_{m}$
+\end_inset
+
+.
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+Polynomial preconditioning
 \end_layout
 
 \begin_layout Standard
-In this system, the matrix 
+Consider the characteristic polynomial 
+\begin_inset Formula $\chi_{A}$
+\end_inset
+
+ of A.
+ With the Caley-Hamilton theorem, we have 
+\begin_inset Formula 
+\[
+\chi_{A}(A)=a_{n}A^{n}+a_{n-1}A^{n-1}+\cdots+a_{1}A+a_{0}I=0,
+\]
+
+\end_inset
+
+and so, for 
+\begin_inset Formula $a_{0}\neq0$
+\end_inset
+
+, 
+\begin_inset Formula 
+\[
+A^{-1}=\frac{1}{a_{0}}(-a_{n}A^{n-1}-a_{n-1}A^{n-2}-\cdots-a_{1}I).
+\]
+
+\end_inset
+
+It thus makes sense to approximate 
+\begin_inset Formula $A^{-1}$
+\end_inset
+
+ with a polynomial 
+\begin_inset Formula $s(A)$
+\end_inset
+
+.
+ We set 
+\begin_inset Formula $M^{-1}=s(A)$
+\end_inset
+
+, and assume 
+\begin_inset Formula $s$
+\end_inset
+
+ to have degree 
+\begin_inset Formula $d\ll n$
+\end_inset
+
+.
+ Note that 
+\begin_inset Formula $s(A)A=As(A)$
+\end_inset
+
+, so left and right preconditioning build the same Krylov subspace.
+ We call 
+\begin_inset Formula $M^{-1}$
+\end_inset
+
+ a 
+\series bold
+polynomial preconditioner
+\series default
+.
+\end_layout
+
+\begin_layout Standard
+The matrix 
 \begin_inset Formula $s(A)$
 \end_inset
 
@@ -2122,10 +2285,9 @@ s(A)v & =s_{d+1}A^{d}v+s_{d}A^{d-1}v+\cdots+s_{1}v\\
 
 \end_layout
 
-\begin_layout Standard
-Note that a polynomial preconditioner can be combined with other preconditioners
- 
-\begin_inset Formula $\tilde{M}$
+\begin_layout Remark
+A polynomial preconditioner may be combined with other preconditioners 
+\begin_inset Formula $M'$
 \end_inset
 
 , such as ILU(
@@ -2135,7 +2297,7 @@ Note that a polynomial preconditioner can be combined with other preconditioners
 ), by solving the system:
 \begin_inset Formula 
 \[
-s(\tilde{M}^{-1}A)\tilde{M}^{-1}A=s(\tilde{M}^{-1}A)\tilde{M}^{-1}b.
+s(M'^{-1}A)M'^{-1}A=s(M'^{-1}A)M'^{-1}b.
 \]
 
 \end_inset
@@ -2144,66 +2306,14 @@ s(\tilde{M}^{-1}A)\tilde{M}^{-1}A=s(\tilde{M}^{-1}A)\tilde{M}^{-1}b.
 \end_layout
 
 \begin_layout Standard
-We now compute a polynomial preconditioner related to the GMRES polynomial.
- Unlike methods such as 
-\series bold
-Chebyshev polynomials
-\series default
- or 
-\series bold
-least squares polynomials
-\series default
-, which use estimates of the spectrum of 
-\begin_inset Formula $A$
-\end_inset
-
- 
-\begin_inset CommandInset citation
-LatexCommand cite
-after "12.3"
-key "Saad-2003"
-literal "false"
-
-\end_inset
-
-, knowledge of the spectrum is required 
-\begin_inset CommandInset citation
-LatexCommand cite
-key "Liu-2015"
-literal "false"
-
-\end_inset
-
-.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Move this section down?
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-GMRES computes a polynomial 
-\begin_inset Formula $p(A)$
-\end_inset
-
+We now compute a polynomial preconditioner related to the GMRES polynomial,
  corresponding to a minimal residual 
 \begin_inset Formula $\|p(A)r_{0}\|=\|(I-Aq(A))r_{0}\|$
 \end_inset
 
 .
- We want to compute the coefficients of 
+ For a preconditioner, we compute 
 \begin_inset Formula $q(A)$
-\end_inset
-
- for a given degree 
-\begin_inset Formula $d$
 \end_inset
 
  instead.
@@ -2279,6 +2389,22 @@ that is,
 \end_layout
 
 \begin_layout Itemize
+The method requires no knowledge of the spectrum of 
+\begin_inset Formula $A$
+\end_inset
+
+, unlike Chebyshev or least squares polynomials 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Liu-2015"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
 The method becomes unstable as the columns of 
 \begin_inset Formula $Y$
 \end_inset
@@ -2321,7 +2447,7 @@ The matrix
 \begin_inset Formula $AY$
 \end_inset
 
- is a (sparse) matrix of dimension 
+ is a matrix of dimension 
 \begin_inset Formula $n\times(d+1)$
 \end_inset
 
@@ -2338,7 +2464,7 @@ The matrix
 \begin_inset Formula $(d+1)\times(d+1)$
 \end_inset
 
- and requires a sparse matrix-matrix multiplication.
+ and requires a matrix-matrix multiplication.
  With 
 \begin_inset Formula $d\ll n$
 \end_inset
@@ -2384,15 +2510,29 @@ For every problem, the right-hand side is sampled from
 
  and standard deviation 1.
  Orthonormalization was done using the Modified Gram-Schmidt procedure.
- The vector for computing the power basis 
+ Right preconditioned GMRES is used for comparing residuals 
+\begin_inset Formula $\|b-Ax_{i}\|$
+\end_inset
+
+ between the initial and preconditioned systems.
+ The vector 
+\begin_inset Formula $v_{0}$
+\end_inset
+
+ for computing the power basis 
 \begin_inset Formula $Y$
 \end_inset
 
  is sampled from 
-\begin_inset Formula $\mathcal{N}(-1,1)$
+\begin_inset Formula $U[-1,1]$
+\end_inset
+
+, the uniform distribution on the interval 
+\begin_inset Formula $[-1,1]$
 \end_inset
 
 .
+ 
 \end_layout
 
 \begin_layout Enumerate
@@ -2637,10 +2777,9 @@ SHERMAN5
 \end_layout
 
 \begin_layout Standard
-We use GMRES(20) for the Bidiagonal Matrix, GMRES(50) for SIRMQ4M1, and
- GMRES(100) for E20R0100 and the Circle Eigenvalue Matrix.
- The maximum of iterations is 5000 for all problems except for SHERMAN5,
- which uses a maximum of 20,000 iterations.
+We use GMRES(20) with for the Bidiagonal Matrix, GMRES(50) for SIRMQ4M1,
+ and GMRES(100) for E20R0100 and the Circle Eigenvalue Matrix.
+ The maximum of iterations is set to 20,000.
  Tolerance is set to 
 \begin_inset Formula $\varepsilon=10^{-8}$
 \end_inset
@@ -2793,17 +2932,7 @@ For each problem, the preconditioner mapped the spectrum to cluster eigenvalues
 
 \begin_layout Itemize
 For the Bidiagonal Matrix and S1RMQ4M1, it sufficed to use degree 3 polynomials
- to ensure convergence to the given tolerance (Figure 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:convergence_s1rmq4m1"
-plural "false"
-caps "false"
-noprefix "false"
-
-\end_inset
-
-).
+ to ensure convergence to the given tolerance.
  More difficult problems required higher degree polynomials.
  In particular, convergence for E20R0100 stalled for degree 
 \begin_inset Formula $<10$
@@ -2821,17 +2950,17 @@ noprefix "false"
 
 ).
  With improved convergence, the amount of inner products decreased accordingly
- (Figure 
+ (Table 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "fig:no_inner_products"
+reference "tab:Inner-products"
 plural "false"
 caps "false"
 noprefix "false"
 
 \end_inset
 
-).
+.
 \end_layout
 
 \begin_layout Itemize
@@ -2860,8 +2989,8 @@ literal "false"
 \end_inset
 
  improved convergence for some samples, but worsened it for others.
- Degree 12 and 15 polynomials had more consistent results, but were still
- not guaranteed to improve convergence.
+ We had similar results for other degree polynomials.
+ GMRES without preconditioning, however, converged reliably.
 \end_layout
 
 \begin_layout Section*
@@ -3302,47 +3431,6 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename example_4_gmres.png
-	width 50text%
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-Convergence of S1RMQ4M1, GMRES(50) 
-\begin_inset CommandInset label
-LatexCommand label
-name "fig:convergence_s1rmq4m1"
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Graphics
 	filename example_5_gmres.png
 	width 50text%
 
@@ -3384,7 +3472,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename example_6_gmres_2.png
+	filename example_6_gmres_seed_42.png
 	width 50text%
 
 \end_inset
@@ -3396,7 +3484,7 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Convergence of SHERMAN5, GMRES(100), seed = 1892 
+Convergence of SHERMAN5, GMRES(100), seed = 42 
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:convergence_SHERMAN5-1"
@@ -3417,19 +3505,12 @@ name "fig:convergence_SHERMAN5-1"
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float figure
+\begin_inset Float table
 wide false
 sideways false
 status open
 
 \begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename inner_product_count.png
-	width 50text%
-
-\end_inset
-
 
 \end_layout
 
@@ -3437,14 +3518,10 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Number of inner products for 
-\begin_inset Formula $\varepsilon=10^{-8}$
-\end_inset
-
- and a maximum of 5000 iterations 
+SpMVs for polynomials of different degree
 \begin_inset CommandInset label
 LatexCommand label
-name "fig:no_inner_products"
+name "tab:SpMVs"
 
 \end_inset
 
@@ -3453,6 +3530,10 @@ name "fig:no_inner_products"
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Plain Layout
 
 \end_layout
 
@@ -3462,19 +3543,12 @@ name "fig:no_inner_products"
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float figure
+\begin_inset Float table
 wide false
 sideways false
 status open
 
 \begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename spmvs_count.png
-	width 50text%
-
-\end_inset
-
 
 \end_layout
 
@@ -3482,15 +3556,22 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Number of SpMVs for 
-\begin_inset Formula $\varepsilon=10^{-8}$
+Inner products for polynomials of different degree
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Inner-products"
+
 \end_inset
 
- and a maximum of 5000 iterations
+
 \end_layout
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Plain Layout
 
 \end_layout
 
@@ -3565,7 +3646,7 @@ deg 10
 \begin_inset Text
 
 \begin_layout Plain Layout
--0.1945
+
 \end_layout
 
 \end_inset
@@ -3574,7 +3655,7 @@ deg 10
 \begin_inset Text
 
 \begin_layout Plain Layout
--0.1376
+
 \end_layout
 
 \end_inset
@@ -3583,7 +3664,7 @@ deg 10
 \begin_inset Text
 
 \begin_layout Plain Layout
--0.1084
+
 \end_layout
 
 \end_inset
@@ -3592,273 +3673,7 @@ deg 10
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.0783
-\end_layout
 
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-0.9805
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-0.9684
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-0.9778
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--0.9440
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--1.9805
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--2.9234
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--3.9207
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-5.2195
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-2.0000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-4.9100
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-9.1758
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--17.4999
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--4.9550
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--13.8125
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-39.6248
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-3.0000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-13.8695
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--63.8276
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--9.2898
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-74.9846
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-4.0000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--64.7198
 \end_layout
 
 \end_inset
@@ -3896,7 +3711,7 @@ deg 10
 \begin_inset Text
 
 \begin_layout Plain Layout
-40.7217
+
 \end_layout
 
 \end_inset
@@ -3934,7 +3749,273 @@ deg 10
 \begin_inset Text
 
 \begin_layout Plain Layout
--18.2159
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \end_inset
@@ -3972,7 +4053,7 @@ deg 10
 \begin_inset Text
 
 \begin_layout Plain Layout
-5.5000
+
 \end_layout
 
 \end_inset
@@ -4082,9 +4163,6 @@ deg 10
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $-0.0012$
-\end_inset
-
 
 \end_layout
 
@@ -4094,9 +4172,6 @@ deg 10
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $-0.0001$
-\end_inset
-
 
 \end_layout
 
@@ -4106,161 +4181,6 @@ deg 10
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $-3.4021$
-\end_inset
-
-e-06
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\strikeout off
-\xout off
-\uuline off
-\uwave off
-\noun off
-\color none
-\begin_inset Formula $3.2267$
-\end_inset
-
-
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\strikeout default
-\xout default
-\uuline default
-\uwave default
-\noun default
-\color inherit
-e-08
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $0.0337$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $0.0029$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $1.8944$
-\end_inset
-
-e-04
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\strikeout off
-\xout off
-\uuline off
-\uwave off
-\noun off
-\color none
-\begin_inset Formula $-2.4589$
-\end_inset
-
-
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\strikeout default
-\xout default
-\uuline default
-\uwave default
-\noun default
-\color inherit
-e-06
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-0.3126$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-0.0466$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-0.0044$
-\end_inset
-
 
 \end_layout
 
@@ -4270,241 +4190,6 @@ e-06
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $8.1994$
-\end_inset
-
-e-05
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $1.0714$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $0.3634$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $0.0540$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-0.0016$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-1.3908$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-0.3836$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $0.0191$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $2.2885$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $1.5686$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-0.1526$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-3.4603$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $0.8125$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $3.4870$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-2.8310$
-\end_inset
-
 
 \end_layout
 
@@ -4543,9 +4228,6 @@ e-05
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $6.1825$
-\end_inset
-
 
 \end_layout
 
@@ -4584,9 +4266,272 @@ e-05
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $-7.7796$
-\end_inset
 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 
 \end_layout
 
@@ -4625,9 +4570,6 @@ e-05
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $4.7860$
-\end_inset
-
 
 \end_layout
 
@@ -4738,10 +4680,7 @@ deg 10
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $3.0913$
-\end_inset
 
-e-16
 \end_layout
 
 \end_inset
@@ -4750,10 +4689,7 @@ e-16
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $1.3545$
-\end_inset
 
-e-26
 \end_layout
 
 \end_inset
@@ -4762,10 +4698,7 @@ e-26
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $6.3270$
-\end_inset
 
-e-37
 \end_layout
 
 \end_inset
@@ -4774,292 +4707,7 @@ e-37
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $-1.8078$
-\end_inset
 
-e-52
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-1.3733$
-\end_inset
-
-e-10
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-1.0459$
-\end_inset
-
-e-20
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-6.9969$
-\end_inset
-
-e-31
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $2.9462$
-\end_inset
-
-e-46
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $2.2131$
-\end_inset
-
-e-05
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $3.8068$
-\end_inset
-
-e-15
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $4.0678$
-\end_inset
-
-e-25
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-2.7248$
-\end_inset
-
-e-40
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-6.6028$
-\end_inset
-
-e-10
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-1.3326$
-\end_inset
-
-e-19
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $1.5744$
-\end_inset
-
-e-34
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $4.8290$
-\end_inset
-
-e-05
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $2.4458$
-\end_inset
-
-e-14
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-5.8966$
-\end_inset
-
-e-29
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-2.3425$
-\end_inset
-
-e-09
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $1.4375$
-\end_inset
-
-e-23
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $9.7378$
-\end_inset
-
-e-05
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $-2.2304$
-\end_inset
-
-e-18
 \end_layout
 
 \end_inset
@@ -5097,10 +4745,7 @@ e-18
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $2.0865$
-\end_inset
 
-e-13
 \end_layout
 
 \end_inset
@@ -5138,10 +4783,235 @@ e-13
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $-1.0575$
-\end_inset
 
-e-08
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \end_inset
@@ -5179,10 +5049,7 @@ e-08
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $2.3067$
-\end_inset
 
-e-04
 \end_layout
 
 \end_inset
