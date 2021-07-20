@@ -2023,7 +2023,7 @@ preconditioner
 \begin_inset Formula 
 \begin{align*}
 AM^{-1}u & =b,\\
-x & \equiv M^{-1}u.
+x & =M^{-1}u.
 \end{align*}
 
 \end_inset

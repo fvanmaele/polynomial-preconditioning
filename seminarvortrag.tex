@@ -362,7 +362,7 @@ We call $M$ the \textbf{preconditioner}. The preconditioner can be
 either applied to the left or right. Latter leads to the system
 \begin{align*}
 AM^{-1}u & =b,\\
-x & \equiv M^{-1}u.
+x & =M^{-1}u.
 \end{align*}
 This amounts to making the change of variables $u=Mx$, and solving
 the system with respect to the unknown $u$ \cite[9.1]{Saad-2003}. 
@@ -692,16 +692,16 @@ on the polynomial degree of the preconditioner.\label{fig:cond_circle_evm}}
 
 \begin{figure}[tb]
 \begin{centering}
-\includegraphics[width=0.4\textwidth]{example_6_gmres_seed_42}
+\includegraphics[width=0.4\textwidth]{example_5_gmres}
 \par\end{centering}
-\caption{Convergence of SHERMAN5, GMRES(100), seed = 42 \label{fig:convergence_SHERMAN5-1}}
+\caption{Convergence of E20R0100, GMRES(100) \label{fig:convergence_e20r0100}}
 \end{figure}
 
 \begin{figure}[t]
 \begin{centering}
-\includegraphics[width=0.4\textwidth]{example_5_gmres}
+\includegraphics[width=0.4\textwidth]{example_6_gmres_seed_42}
 \par\end{centering}
-\caption{Convergence of E20R0100, GMRES(100) \label{fig:convergence_e20r0100}}
+\caption{Convergence of SHERMAN5, GMRES(100), seed = 42 \label{fig:convergence_SHERMAN5-1}}
 \end{figure}
 
 \begin{figure}[tb]
