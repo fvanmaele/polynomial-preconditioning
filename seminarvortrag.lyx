@@ -5215,10 +5215,6 @@ Applying this preconditioner to several difficult problems, including E20R0100,
 , and can even result in worse convergence.
 \end_layout
 
-\begin_layout Standard
-
-\end_layout
-
 \begin_layout Bibliography
 \begin_inset CommandInset bibitem
 LatexCommand bibitem

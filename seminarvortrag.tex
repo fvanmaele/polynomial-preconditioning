@@ -521,8 +521,7 @@ to be effective if the eigenvalues of $M^{-1}A$ are clustered around
 a constant value, such as 1. For most test problems, after applying
 the polynomial preconditioner this was indeed the case. The results
 are summarized in Table \ref{tab:spectra-stats}. The spectrum of
-E20R0100 after applying a degree 10 polynomial is illustrated in Fig.
-\ref{fig:spec_e20r0100}. 
+E20R0100 after applying a degree 10 polynomial is shown in Fig. \ref{fig:spec_e20r0100}. 
 
 For the symmetric positive definite matrix S1RMQ4M1, preconditioning
 with degree 7 and degree 9 polynomials lead to negative eigenvalues.
@@ -531,7 +530,7 @@ for polynomials of a different degree. One may however expect that
 $M^{-1}A$, while symmetric, is not positive definite in general.
 This limits the use of the preconditioner with the Preconditioned
 CG method \cite{Saad-1985}, which depends on a symmetric positive
-definite coefficient matrix.
+definite preconditioner.
 
 \begin{table}[b]
 \caption{Extreme values, mean $\mu$, and standard deviation $\sigma$ for
@@ -623,7 +622,7 @@ complex plane. Other degrees typically resulted in worse convergence.
 GMRES without preconditioning, however, converged reliably for each
 sample. See Fig. \ref{fig:convergence_SHERMAN5-1} and \ref{fig:convergence_SHERMAN5-2}.
 \end{itemize}
-\begin{table}[tb]
+\begin{table}[b]
 \caption{Inner products for polynomials of different degree\label{tab:Inner-products}}
 
 \medskip{}
