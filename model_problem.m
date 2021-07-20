@@ -40,7 +40,9 @@ end
 
 %% Polynomial preconditioning (n = 5, deg = 2)
 v0 = [1/3; -1; 0; -1; -1];
-[p, AY] = polynomialPreconditioner(A{1}, v0, 2);
+[p2, AY2] = polynomialPreconditioner(A{1}, v0, 2);
+[p5, AY5] = polynomialPreconditioner(A{1}, v0, 5);
+Ainv = polyvalm(p5,A{1})*A{1};
 
 %% Plots
 plot(x{1}, u{1}, '-*')

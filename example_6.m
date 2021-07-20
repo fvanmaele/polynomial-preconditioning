@@ -4,8 +4,8 @@ n = 3312;
 
 %% RNG
 %seed = 42;
-seed = 1892;
-%seed = 666;
+%seed = 1892;
+seed = 666;
 rng(seed)
 
 %% Input parameters
@@ -69,7 +69,7 @@ end
 %hold on
 %plot(specPA{3}, 'o')
 %plot(specPA{5}, 'o')
-plot(specPA{7}, 'o')
+plot(specPA{3}, 'o')
 %plot(specPA{10}, 'o')
 %axis([-0.5 2.5 -1.5 1.5])
 %plot(specPA{15}, 'o')

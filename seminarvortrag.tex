@@ -6,6 +6,7 @@
 \usepackage{float}
 \usepackage{booktabs}
 \usepackage{units}
+\usepackage{url}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
@@ -41,13 +42,14 @@
 \newtheorem{example}[thm]{\protect\examplename}
 \theoremstyle{plain}
 \newtheorem{cor}[thm]{\protect\corollaryname}
-\theoremstyle{remark}
+\theoremstyle{plain}
 \newtheorem{rem}[thm]{\protect\remarkname}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
 % for subfigures/subtables
 \usepackage[caption=false,font=footnotesize]{subfig}
 \usepackage{algorithm,algorithmic}
+\usepackage[bottom]{footmisc}
 
 \makeatother
 
@@ -115,7 +117,7 @@ of the matrix $A$. Finding the coefficients of $M^{-1}$ requires
 a (possibly dense) matrix-matrix multiplication. This cost can be
 controlled by the degree of the polynomial, depending on the difficulty
 of the problem, making it more granular than classical preconditioners
-such as ILU decomposition. 
+such as Incomplete LU (ILU) factorizations. 
 
 \section{Related Work\label{sec:Related-Work}}
 
@@ -138,9 +140,9 @@ reduce the effect of inner products on communication. Saad \cite[6.12]{Saad-2003
 put forward an overview and gives further references. 
 
 After revisiting theoretical results on Krylov subspaces and GMRES
-in sections \ref{sec:Krylov-subspaces}, \ref{sec:The-GMRES-method}
+in Sections \ref{sec:Krylov-subspaces}, \ref{sec:The-GMRES-method}
 and \ref{sec:Convergence-of-GMRES}, we introduce polynomial preconditioning
-and its advantages in Chapter \ref{sec:Preconditioning}. In section
+and its advantages in Section \ref{sec:Preconditioning}. In Section
 \ref{sec:Numerical-experiments} we test the impact of polynomial
 preconditioning on convergence for several test problems. 
 
@@ -153,19 +155,18 @@ to either real or complex matrices. We introduce Krylov subspaces
 and construct an orthonormal basis. Solving a least squares problem
 to find the minimum residual for vectors in this subspace leads to
 the GMRES method. 
-\begin{defn}[{Krylov subspace \cite[6.2]{Saad-2003}}]
+\begin{defn}[{\cite[6.2]{Saad-2003}}]
 The \textbf{Krylov subspace} of order $m$, denoted by $\mathcal{K}_{p}$,
 is the vector space spanned by $v\in\mathbb{R}^{n}$ and the first
 $m-1$ powers of $A$:
 \[
 \mathcal{K}_{m}(A,v)=\text{span}\{v,Av,A^{2}v,\ldots,A^{m-1}v\}.
 \]
-\end{defn}
 The Krylov subspaces form an increasing family of subspaces, with
 dimension bounded by $n$. It is the subspace of all vectors in $\mathbb{R}^{n}$
 which can be written as $x=p(A)v$, where $p$ is a polynomial of
-degree not exceding $m-1$.  
-
+degree not exceeding $m-1$.  
+\end{defn}
 In practice, constructing the Krylov subspaces amounts to determining
 their basis. The power basis $(v,Av,A^{2}v,\ldots,A^{m-1}v)$ converges
 to (a multiple of) an eigenvector that corresponds to the largest
@@ -181,23 +182,23 @@ gives a practical implementation.
 \begin{algorithm}[h]
 Choose a vector $v_{1}$ of norm 1
 
-For $j=1,2,\ldots,m$ Do:
+\textbf{For} $j=1,2,\ldots,m$ \textbf{Do}:
 
 \hspace{2em}Compute $w_{j}:=Av_{j}$
 
-\hspace{2em}For $i=1,\cdots,j$ Do:
+\hspace{2em}\textbf{For} $i=1,\cdots,j$ \textbf{Do}:
 
 \hspace{2em}\hspace{2em}$h_{ij}=(w_{j},v_{i})$
 
 \hspace{2em}\hspace{2em}$w_{j}:=w_{j}-h_{ij}v_{i}$
 
-\hspace{2em}EndDo
+\hspace{2em}\textbf{EndDo}
 
-\hspace{2em}$h_{j+1,j}=\|w_{j}\|_{2}$. If $h_{j+1,j}=0$ Stop
+\hspace{2em}$h_{j+1,j}=\|w_{j}\|_{2}$. If $h_{j+1,j}=0$ \textbf{Stop}
 
 \hspace{2em}$v_{j+1}=w_{j}/h_{j+1,j}$
 
-EndDo
+\textbf{EndDo}
 
 \caption{Arnoldi-Modified Gram-Schmidt\label{alg:Arnoldi-Modified-Gram-Schmidt}}
 \end{algorithm}
@@ -223,7 +224,7 @@ H_{m}=\begin{pmatrix}h_{1,1} & h_{1,2} & \cdots & \cdots & h_{1,m}\\
 h_{2,1} & h_{2,2} &  &  & \vdots\\
  & h_{3,2} & \ddots &  & \vdots\\
  &  & \ddots & \ddots & \vdots\\
- &  &  & \ddots & h_{m,m-1}h_{m,m}
+ &  &  & h_{m,m-1} & h_{m,m}
 \end{pmatrix}.
 \]
 
@@ -247,17 +248,17 @@ By orthonormality of $V_{m+1}$ column vectors, $J(y)=\|\beta e_{1}-\overline{H}_
 The \textbf{GMRES approximation} is then the unique vector  of $x_{0}+\mathcal{K}_{m}$
 which minimizes $J$.  
 \end{defn}
-This results in the following algorithm: \cite[Algorithm 6.9]{Saad-2003}
+This results in Algorithm \ref{alg:GMRES} (\cite[Algorithm 6.9]{Saad-2003}).
 
 \begin{algorithm}[h]
 Compute $r_{0}=b-Ax_{0}$, $\beta:=\|r_{0}\|_{2}$, and $v_{1}:=r_{0}/\beta$
 
-For $j=1,2,\ldots,m$ Do:
+\textbf{For} $j=1,2,\ldots,m$ \textbf{Do}:
 
 \hspace{2em}$\langle$ step $n$ of Arnoldi iteration, Algorithm
 \ref{alg:Arnoldi-Modified-Gram-Schmidt} $\rangle$
 
-EndDo
+\textbf{EndDo}
 
 Define the $(m+1)\times m$ Hessenberg matrix $\overline{H}_{m}=\{h_{ij}\}_{1\leq i\leq m+1,1\leq j\leq m}$
 
@@ -293,7 +294,7 @@ unless the matrix $A$ is positive definite \cite[3.4]{Saad-1986}.
 Because $\|r_{m}\|$ is as small as possible for the subspace $\mathcal{K}_{m}$,
 by enlarging $\mathcal{K}_{m}$ to the space $\mathcal{K}_{m+1}$
 we can only decrease the residual norm, or at worst leave it unchanged.
-Thus we observe that GMRES converges monotically: $\|r_{m+1}\|\leq\|r_{m}\|$.
+Thus we observe that GMRES converges monotonically: $\|r_{m+1}\|\leq\|r_{m}\|$.
 After $n$ steps (for an $n\times n$ problem), we have $\mathcal{K}_{n}=\mathbb{C}^{n}$
 and the full GMRES algorithm is guaranteed to converge. However, for
 GMRES to be useful, it must converge to satisfactory precision in
@@ -359,9 +360,10 @@ this system depends on the properties of $M^{-1}A$, and may require
 fewer steps to converge than the original system \cite[10.1]{Saad-2003}.
 We call $M$ the \textbf{preconditioner}. The preconditioner can be
 either applied to the left or right. Latter leads to the system
-\[
-AM^{-1}u=b,\quad x\equiv M^{-1}u.
-\]
+\begin{align*}
+AM^{-1}u & =b,\\
+x & \equiv M^{-1}u.
+\end{align*}
 This amounts to making the change of variables $u=Mx$, and solving
 the system with respect to the unknown $u$ \cite[9.1]{Saad-2003}. 
 
@@ -369,7 +371,7 @@ $M$ should meet the following requirements:
 \begin{itemize}
 \item $M$ lies between $M=A$ (for the equally hard to solve system $x=A^{-1}b$)
 and $M=I$ (for the original system $Ax=b)$.
-\item $M^{-1}$ should be inexpensive to apply to an arbitrary vector.
+\item $M^{-1}$ is inexpensive to apply to an arbitrary vector.
 \item $M$ is ``close enough'' to $A$, in the sense that the preconditioned
 system $M^{-1}Ax=M^{-1}b$ converges more quickly than the system
 $Ax=b$. Specifically, we want $\|I-M^{-1}A\|$ to be small and the
@@ -402,7 +404,7 @@ $r_{0}=M^{-1}(b-Ax_{0}$).
 
 \subsection{Polynomial preconditioning}
 
-Consider the characteristic polynomial $\chi_{A}$ of A. With the
+Consider the characteristic polynomial $\chi_{A}$ of $A$. With the
 Caley-Hamilton theorem, we have 
 \[
 \chi_{A}(A)=a_{n}A^{n}+a_{n-1}A^{n-1}+\cdots+a_{1}A+a_{0}I=0,
@@ -458,16 +460,11 @@ Using a randomly chosen vector may be preferable in this case \cite{Loe-2019}.
 \item The matrix $AY$ is a matrix of dimension $n\times(d+1)$, and takes
 $d+1$ matrix-vector products to compute. The product $(AY)^{T}AY$
 is of dimension $(d+1)\times(d+1)$ and requires a matrix-matrix multiplication.
-With $d\ll n$, the system $(AY)^{T}AYy=(AY)v_{0}$ can then be solved
-through a direct method such as LU decomposition.
+With $d\ll n$, the system $(AY)^{T}AYy=(AY)v_{0}$ is of small dimension
+and can be solved with a direct method such as LU decomposition. 
 \end{itemize}
 
 \section{Numerical experiments\label{sec:Numerical-experiments}}
-
-We consider the following problems. Some of these problems are very
-difficult for GMRES to solve, and, considering the small dimension
-$n$, may be better suited for direct solvers. They nonetheless give
-a good indication of the difficulties involved when using GMRES.
 
 For every problem, the right-hand side is sampled from $\mathcal{N}(0,1)$,
 the real normal distribution of mean $0$ and standard deviation 1.
@@ -476,6 +473,11 @@ Right preconditioned GMRES is used for comparing residuals $\|b-Ax_{i}\|$
 between the initial and preconditioned systems. The vector $v_{0}$
 for computing the power basis $Y$ is sampled from $U[-1,1]$, the
 uniform distribution on the interval $[-1,1]$. 
+
+Some of the problems considered are very difficult for GMRES to solve,
+and, considering the small dimension $n$, may be better suited for
+direct solvers. They nonetheless give a good indication of the difficulties
+involved when using GMRES.
 \begin{enumerate}
 \item \label{enu:problem-1}The \textbf{Circle Eigenvalue Matrix} of size
 $n=2000$, a block diagonal matrix with $2\times2$ blocks:
@@ -508,51 +510,218 @@ matrix of size $n=3312$. The condition number is estimated at $3.9\times10^{5}$
 by Matrix Market. This matrix serves as an example where polynomial
 preconditioning can worsen convergence.
 \end{enumerate}
-We use GMRES(20) with for the Bidiagonal Matrix, GMRES(50) for SIRMQ4M1,
-and GMRES(100) for E20R0100 and the Circle Eigenvalue Matrix. The
-maximum of iterations is set to 20,000. Tolerance is set to $\varepsilon=10^{-8}$
-for the relative residual $\frac{\|b-Ax_{m}\|}{\|b\|}$. Polynomials
-of degree 3, 5, 7, and 10 are used for most problems. Implementation
-was done in MATLAB, based on \texttt{gmres.m} from the Netlib Repository.
- 
+Polynomials of degree 3, 5, 7, and 10 are used for most problems.
+Implementation was done in MATLAB\footnote{See \url{https://github.com/fvanmaele/polynomial-preconditioning}
+for the implementation and supplementary materials.}, based on \texttt{gmres.m} from the Netlib Repository.
 
-We observe the following:
+\subsection{Numerical properties}
+
+As explained in Section \ref{sec:Preconditioning}, we expect a preconditioner
+to be effective if the eigenvalues of $M^{-1}A$ are clustered around
+a constant value, such as 1. For most test problems, after applying
+the polynomial preconditioner this was indeed the case. The results
+are summarized in Table \ref{tab:spectra-stats}. The spectrum of
+E20R0100 after applying a degree 10 polynomial is illustrated in Fig.
+\ref{fig:spec_e20r0100}. 
+
+For the symmetric positive definite matrix S1RMQ4M1, preconditioning
+with degree 7 and degree 9 polynomials lead to negative eigenvalues.
+These eigenvalues were outliers, and the behavior was not observed
+for polynomials of a different degree. One may however expect that
+$M^{-1}A$, while symmetric, is not positive definite in general.
+This limits the use of the preconditioner with the Preconditioned
+CG method \cite{Saad-1985}, which depends on a symmetric positive
+definite coefficient matrix.
+
+\begin{table}[b]
+\caption{Extreme values, mean $\mu$, and standard deviation $\sigma$ for
+$|\lambda(A)|$, the (magnitude of the) spectrum of $A$.\label{tab:spectra-stats}}
+\medskip{}
+
+\centering{}%
+\begin{tabular}{|c|c|l|l|l|l|}
+\hline 
+{\scriptsize{}Matrix $A$} & {\scriptsize{}$\deg$} & {\scriptsize{}$\min(|\lambda(A)|)$} & {\scriptsize{}$\max(|\lambda(A)|$} & {\scriptsize{}$\mu(|\lambda(A)|$} & {\scriptsize{}$\sigma(|\lambda(A)|)$}\tabularnewline
+\hline 
+\hline 
+{\scriptsize{}CEM} & {\scriptsize{}–} & {\scriptsize{}0.00314} & {\scriptsize{}2} & {\scriptsize{}1.2742} & {\scriptsize{}0.61523}\tabularnewline
+\hline 
+{\scriptsize{}CEM} & {\scriptsize{}10} & {\scriptsize{}0.01727} & {\scriptsize{}1.2070} & {\scriptsize{}0.94540} & {\scriptsize{}0.14954}\tabularnewline
+\hline 
+{\scriptsize{}BiDiag1} & {\scriptsize{}–} & {\scriptsize{}0.1} & {\scriptsize{}4991} & {\scriptsize{}2491.5} & {\scriptsize{}1443.5}\tabularnewline
+\hline 
+{\scriptsize{}BiDiag1} & {\scriptsize{}3} & {\scriptsize{}0.00024} & {\scriptsize{}1.1509} & {\scriptsize{}0.95895} & {\scriptsize{}0.19989}\tabularnewline
+\hline 
+{\scriptsize{}S1RMQ4M1} & {\scriptsize{}–} & {\scriptsize{}0.37970} & {\scriptsize{}6.8743e+05} & {\scriptsize{}8.6760e+04} & {\scriptsize{}1.2595e+05}\tabularnewline
+\hline 
+{\scriptsize{}S1RMQ4M1} & {\scriptsize{}3} & {\scriptsize{}7.7127e-06} & {\scriptsize{}1.2028} & {\scriptsize{}0.47948} & {\scriptsize{}0.49665}\tabularnewline
+\hline 
+{\scriptsize{}E20R0100} & {\scriptsize{}–} & {\scriptsize{}1.3999e-06} & {\scriptsize{}13.057} & {\scriptsize{}4.3537} & {\scriptsize{}4.0740}\tabularnewline
+\hline 
+{\scriptsize{}E20R0100} & {\scriptsize{}10} & {\scriptsize{}4.8582e-06} & {\scriptsize{}1.0902} & {\scriptsize{}0.71268} & {\scriptsize{}0.44947}\tabularnewline
+\hline 
+\end{tabular}
+\end{table}
+
+\begin{figure}[b]
+\begin{centering}
+\includegraphics[width=0.5\textwidth]{example_5_spec}
+\par\end{centering}
+\caption{Spectrum of $A$ (blue) and $M^{-1}A$ (orange, $d=10$) for E20R0100\label{fig:spec_e20r0100}}
+\end{figure}
+
+For most test problems, the condition number was inversely proportional
+to the degree of the applied polynomial. In those cases, a degree
+$10$ polynomials decreased the condition number by a degree of magnitude.
+The exception was SHERMAN5, where the condition number varied strongly
+for different degree polyomials. This is illustrated in Fig. \ref{fig:cond_circle_evm}.
+We will consider this special case in the following section.
+
+\begin{figure}[tb]
+\begin{centering}
+\includegraphics[width=0.5\textwidth]{example_6_condition}
+\par\end{centering}
+\caption{Condition numbers for E20R0100 (blue) and SHERMAN5 (orange), depending
+on the polynomial degree of the preconditioner.\label{fig:cond_circle_evm}}
+\end{figure}
+
+
+\subsection{Convergence}
+
+We now consider convergence of the studied test problems. A faster
+convergence rate in the preconditioned system leads, for a certain
+tolerance, to a lower amount of steps in the (restarted) GMRES method.
+This leads in turn to a smaller number of inner products (see Table
+\ref{tab:Inner-products}). We also study the impact of polynomial
+preconditioning on the amount of sparse matrix-vector products.
+
+In the below, the maximum of iterations is set to 20,000, and the
+tolerance to $\varepsilon=10^{-8}$ for the relative residual $\frac{\|b-Ax_{m}\|}{\|b\|}$.
 \begin{itemize}
-\item For all problems considered, preconditioning reduced the condition
-number, typically by one order of magnitude for polynomials of degree
-10 (Figure \ref{fig:cond_circle_evm}).
-\item Apart from the Circle Eigenvalue Matrix, the polynomial preconditioner
-had very small coefficients for its higher-order terms (compare table
-\ref{tab:E20R0100}, \ref{tab:S1RMQ4M1}). This effect may be due
-to the ill-conditioned problem of computing coefficients via the normal
-equations with a power basis \cite[III]{Loe-2019}. This corresponded
-with LAPACK reporting a very small RCOND for these problems ($<10^{-17}$
-for E20R011, $<10^{-25}$ for S1RMQ4M1).
-\item The spectrum of S1RMQ4M1 preconditioned with degree 7 or 9 polynomial
-had negative eigenvalues. These eigenvalues were outliers, and the
-behavior was not observed for other degree polynomials. One may however
-expect that $M^{-1}A$, while symmetric, is in general not positive
-definite.
-\item For each problem, the preconditioner mapped the spectrum to cluster
-eigenvalues around 1. The effect was especially noticeable for E20R0100
-and degree 10 polynomials.
-\item For the Bidiagonal Matrix and S1RMQ4M1, it sufficed to use degree
-3 polynomials to ensure convergence to the given tolerance. More difficult
-problems required higher degree polynomials. In particular, convergence
-for E20R0100 stalled for degree $<10$ polynomials (Figure \ref{fig:convergence_e20r0100}).
-With improved convergence, the amount of inner products decreased
-accordingly (Table \ref{tab:Inner-products}.
-\item Apart from the Bidiagonal Matrix, the amount of SpMVs increased by
-\textasciitilde 3x (for S1RMQ4M1) up to \textasciitilde 6x (for
-the Circle Eigenvalue Matrix). For E20R0100, there was an up to \textasciitilde 8x
-increase, but with fast convergence of a degree 10 preconditioner,
-latter only saw an increase of \textasciitilde 1.25x.
-\item Results for SHERMAN5 varied widely between samples of $v_{0}$ of
-$b$. Degree 7 polynomials as suggested in Loe \cite{Loe-2019} improved
-convergence for some samples, but worsened it for others. We had similar
-results for other degree polynomials. GMRES without preconditioning,
-however, converged reliably.
+\item \textbf{BiDiag1} and \textbf{BiDiag2} converged without preconditioning
+using GMRES(20), reaching a tolerance of $\varepsilon=10^{-8}$ in
+18193 and 258 steps, respectively. Preconditioning further increased
+the convergence rate, reaching convergence in 1786 and 60 steps, respectively,
+for a degree 3 polynomial. This is illustrated in Fig. \ref{fig:bidiag2}
+for BiDiag2.
+\item \textbf{S1RMQ4M1} did not converge with GMRES(50). With 20,000 steps
+available, a polynomial of degree 5 was required to converge (in 11901
+steps). Higher degree polynomials lead to better results. See Fig.
+\ref{fig:convergence_s1rmq4m1}. The \textbf{Circle Eigenvalue Matrix}
+behaved similarly, requiring a degree 3 polynomial to converge in
+12564 steps.
+\item \textbf{E20R0100} is a more difficult problem, and required a degree
+7 polynomial to converge (in 9500 steps) with GMRES(100). The problem
+converged in only 997 steps if we raised the polynomial degree to
+10. See Fig. \ref{fig:convergence_e20r0100}.
+\item Results for \textbf{SHERMAN5} varied between samples of $v_{0}$ of
+$b$. Loe \cite{Loe-2019} suggested degree 7 polynomials for improved
+convergence. For the tested samples (seed $\in\{42,666,1892\}$),
+we had more consistent results with a degree 3 polynomial. In this
+case, eigenvalues of $M^{-1}A$ were mapped to the right half of the
+complex plane. Other degrees typically resulted in worse convergence.
+GMRES without preconditioning, however, converged reliably for each
+sample. See Fig. \ref{fig:convergence_SHERMAN5-1} and \ref{fig:convergence_SHERMAN5-2}.
 \end{itemize}
+\begin{table}[tb]
+\caption{Inner products for polynomials of different degree\label{tab:Inner-products}}
+
+\medskip{}
+
+\centering{}%
+\begin{tabular}{cccccc}
+\toprule 
+{\scriptsize{}Inner p. \textbackslash{} deg} & \textbf{\scriptsize{}deg = 0} & \textbf{\scriptsize{}deg = 3} & \textbf{\scriptsize{}deg = 5} & \textbf{\scriptsize{}deg = 7} & \textbf{\scriptsize{}deg = 10}\tabularnewline
+\midrule
+\midrule 
+{\scriptsize{}CEM} & {\scriptsize{}1,010,000} & {\scriptsize{}633,330} & {\scriptsize{}304,176} & {\scriptsize{}183,285} & {\scriptsize{}92,385}\tabularnewline
+\midrule 
+{\scriptsize{}BiDiag1} & {\scriptsize{}190,981} & {\scriptsize{}18,711} & {\scriptsize{}9,261} & {\scriptsize{}5,526} & {\scriptsize{}2,541}\tabularnewline
+\midrule 
+{\scriptsize{}BiDiag2} & {\scriptsize{}2,691} & {\scriptsize{}630} & {\scriptsize{}423} & {\scriptsize{}288} & {\scriptsize{}153}\tabularnewline
+\midrule 
+{\scriptsize{}S1RMQ4M1} & {\scriptsize{}510,000} & {\scriptsize{}510,000} & {\scriptsize{}303,451} & {\scriptsize{}171,553} & {\scriptsize{}84,051}\tabularnewline
+\midrule 
+{\scriptsize{}E20R0100} & {\scriptsize{}1,010,000} & {\scriptsize{}1,010,000} & {\scriptsize{}1,010,000} & {\scriptsize{}479,750} & {\scriptsize{}50,203}\tabularnewline
+\bottomrule
+\end{tabular}
+\end{table}
+
+\medskip{}
+The amount of SpMVs increased by \textasciitilde 3x (for S1RMQ4M1)
+up to \textasciitilde 6x (for the Circle Eigenvalue Matrix). For
+E20R0100, there was up to \textasciitilde 8x increase, but with fast
+convergence of a degree 10 preconditioner, latter only saw an increase
+of \textasciitilde 1.25x in SpMVs. See Table \ref{tab:SpMVs} for
+an overview.
+
+\begin{table}[b]
+\caption{SpMVs for polynomials of different degree\label{tab:SpMVs}}
+\medskip{}
+
+\centering{}%
+\begin{tabular}{cccccc}
+\toprule 
+{\scriptsize{}SpMVs \textbackslash{} deg} & \textbf{\scriptsize{}deg = 0} & \textbf{\scriptsize{}deg = 3} & \textbf{\scriptsize{}deg = 5} & \textbf{\scriptsize{}deg = 7} & \textbf{\scriptsize{}deg = 10}\tabularnewline
+\midrule
+\midrule 
+{\scriptsize{}CEM} & {\scriptsize{}20,401} & {\scriptsize{}50,886} & {\scriptsize{}36,715} & {\scriptsize{}29,565} & {\scriptsize{}20,622}\tabularnewline
+\midrule 
+{\scriptsize{}BiDiag1} & {\scriptsize{}20,013} & {\scriptsize{}7,594} & {\scriptsize{}5,631} & {\scriptsize{}4,491} & {\scriptsize{}2,862}\tabularnewline
+\midrule 
+{\scriptsize{}BiDiag2} & {\scriptsize{}284} & {\scriptsize{}255} & {\scriptsize{}273} & {\scriptsize{}274} & {\scriptsize{}209}\tabularnewline
+\midrule 
+{\scriptsize{}S1RMQ4M1} & {\scriptsize{}20,801} & {\scriptsize{}82,001} & {\scriptsize{}73,079} & {\scriptsize{}55,111} & {\scriptsize{}37,070}\tabularnewline
+\midrule 
+{\scriptsize{}E20R0100} & {\scriptsize{}20,401} & {\scriptsize{}81,001} & {\scriptsize{}121,401} & {\scriptsize{}76,855} & {\scriptsize{}11,087}\tabularnewline
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{rem}
+The polynomial preconditioner had very small coefficients for its
+higher-order terms, for all problems except the Circle Eigenvalue
+Matrix. This effect may originate from the ill-conditioned nature
+of computing coefficients with the normal equations and a power basis
+\cite[III]{Loe-2019}. In particular, LAPACK reported a very small
+\emph{RCOND} for these problems (below $10^{-17}$ for E20R011 and
+below $10^{-25}$ for S1RMQ4M1).
+\end{rem}
+\begin{figure}[tb]
+\begin{centering}
+\includegraphics[width=0.4\textwidth]{example_3_gmres}
+\par\end{centering}
+\caption{Convergence of BiDiag2, GMRES(20)\label{fig:bidiag2}}
+\end{figure}
+
+\begin{figure}[tb]
+\begin{centering}
+\includegraphics[width=0.4\textwidth]{example_4_gmres}
+\par\end{centering}
+\caption{Convergence of S1RMQ4M1, GMRES(50) \label{fig:convergence_s1rmq4m1}}
+\end{figure}
+
+\begin{figure}[tb]
+\begin{centering}
+\includegraphics[width=0.4\textwidth]{example_5_gmres}
+\par\end{centering}
+\caption{Convergence of E20R0100, GMRES(100) \label{fig:convergence_e20r0100}}
+\end{figure}
+
+\begin{figure}[tb]
+\begin{centering}
+\includegraphics[width=0.4\textwidth]{example_6_gmres_seed_42}
+\par\end{centering}
+\caption{Convergence of SHERMAN5, GMRES(100), seed = 42 \label{fig:convergence_SHERMAN5-1}}
+\end{figure}
+
+\begin{figure}[tb]
+\begin{centering}
+\includegraphics[width=0.4\textwidth]{example_6_gmres_seed_1892}
+\par\end{centering}
+\caption{Convergence of SHERMAN5, GMRES(100), seed = 1892 \label{fig:convergence_SHERMAN5-2}}
+\end{figure}
+
 
 \section*{Conclusion}
 
@@ -562,21 +731,27 @@ sparse matrix-vector products. We have introduced a polynomial preconditioner
 related to the minimum residual (GMRES) polynomial. 
 
 To compute the coefficient of the polynomial, no knowledge of the
-spectrum of $A$ is required. The method, which bases on computing
-a power basis $(A^{i}v_{0})$ is however ill-conditioned, which limits
-the degree of the polynomial.
+spectrum of $A$ is required. It suffices to take a random vector
+$v_{0}$, and solve the least squares problem $\min\|v_{0}-s(A)Av_{0}\|$.
+This however bases on computing a power basis $(A^{i}v_{0})$, which
+is ill-conditioned. Therefore the degree of the polynomial is limited,
+typically to $d\leq10$.
 
 Applying this preconditioner to several difficult problems, including
 E20R0100, shows it can be used to significantly improve convergence
 of GMRES. In particular, on parallel systems, synchronization points
 from inner products in each GMRES step are reduced. Care should be
-taken for problems such as SHERMAN5, where effectiveness varies strongly
-between the random vector samples $v_{0}$ used for computing the
-preconditioner.
+taken for problems such as SHERMAN5, where effectiveness varies for
+different samples of the vector $v_{0}$, and can even result in worse
+convergence.
 \begin{thebibliography}{10}
 \bibitem{Saad-1986}Y. SAAD, M. H. Schultz, \emph{GMRES: A generalized
 minimal residual algorithm for solving nonsymmetric linear systems,}
 SIAM J. Sci. Stat. Comput. Vol. 7, No. 3, July 1986.
+
+\bibitem{Saad-1985}Y. SAAD, \emph{Practical use of polynomial preconditionings
+for the conjugate gradient method}, SIAM J. Sci. Stat. Comput. Vol.
+6, No. 4, October 1985.
 
 \bibitem{Magoules-2015}F. MAGOULES, F. ROUX, G. HOUZEAUX, \emph{Parallel
 Scientific Computing, }Wiley, 2015.
@@ -609,177 +784,5 @@ Parallel Variant of the Gram-Schmidt Process with Reorthogonalization},
 Proceedings of the International Conference Parco 2005, 13-16 September
 2005.
 \end{thebibliography}
-
-\appendix{}
-
-\begin{figure}[h]
-\begin{centering}
-\includegraphics[width=0.5\textwidth]{example_1_spec}
-\par\end{centering}
-\caption{Spectrum of $A$ (blue) and $M^{-1}A$ (orange, $d=10$) for the Circle
-Eigenvalue Matrix\label{fig:spec_circle_evm}}
-\end{figure}
-
-\begin{figure}[h]
-\begin{centering}
-\includegraphics[width=0.5\textwidth]{example_5_spec}
-\par\end{centering}
-\caption{Spectrum of $A$ (blue) and $M^{-1}A$ (orange, $d=10$) for E20R0100\label{fig:spec_e20r0100}}
-\end{figure}
-
-\begin{figure}[h]
-\begin{centering}
-\includegraphics[width=0.5\textwidth]{example_6_condition}
-\par\end{centering}
-\caption{Condition numbers for E20R0100 and SHERMAN5\label{fig:cond_circle_evm}}
-\end{figure}
-
-\begin{figure}[h]
-\begin{centering}
-\includegraphics[width=0.4\textwidth]{example_1_gmres}
-\par\end{centering}
-\caption{Convergence of the Circle Eigenvalue Matrix, GMRES(100)\label{fig:convergence_circle_evm}}
-\end{figure}
-
-\begin{figure}[h]
-\begin{centering}
-\includegraphics[width=0.4\textwidth]{example_5_gmres}
-\par\end{centering}
-\caption{Convergence of E20R0100, GMRES(100) \label{fig:convergence_e20r0100}}
-\end{figure}
-
-\begin{figure}[h]
-\begin{centering}
-\includegraphics[width=0.4\textwidth]{example_6_gmres_seed_42}
-\par\end{centering}
-\caption{Convergence of SHERMAN5, GMRES(100), seed = 42 \label{fig:convergence_SHERMAN5-1}}
-\end{figure}
-
-\begin{figure}[h]
-\begin{centering}
-\includegraphics[width=0.4\textwidth]{example_6_gmres_seed_1892}
-\par\end{centering}
-\caption{Convergence of SHERMAN5, GMRES(100), seed = 1892 \label{fig:convergence_SHERMAN5-2}}
-\end{figure}
-
-\begin{table}[h]
-\begin{centering}
-\begin{tabular}{cccccc}
-\toprule 
-{\footnotesize{}SpMVs \textbackslash{} deg} & \textbf{\footnotesize{}deg = 0} & \textbf{\footnotesize{}deg = 3} & \textbf{\footnotesize{}deg = 5} & \textbf{\footnotesize{}deg = 7} & \textbf{\footnotesize{}deg = 10}\tabularnewline
-\midrule
-\midrule 
-{\footnotesize{}CEM} & {\footnotesize{}20,401} & {\footnotesize{}50,886} & {\footnotesize{}36,715} & {\footnotesize{}29,565} & {\footnotesize{}20,622}\tabularnewline
-\midrule 
-{\footnotesize{}BiDiag1} & {\footnotesize{}20,013} & {\footnotesize{}7,594} & {\footnotesize{}5,631} & {\footnotesize{}4,491} & {\footnotesize{}2,862}\tabularnewline
-\midrule 
-{\footnotesize{}BiDiag2} & {\footnotesize{}284} & {\footnotesize{}255} & {\footnotesize{}273} & {\footnotesize{}274} & {\footnotesize{}209}\tabularnewline
-\midrule 
-{\footnotesize{}S1RMQ4M1} & {\footnotesize{}20,801} & {\footnotesize{}82,001} & {\footnotesize{}73,079} & {\footnotesize{}55,111} & {\footnotesize{}37,070}\tabularnewline
-\midrule 
-{\footnotesize{}E20R0100} & {\footnotesize{}20,401} & {\footnotesize{}81,001} & {\footnotesize{}121,401} & {\footnotesize{}76,855} & {\footnotesize{}11,087}\tabularnewline
-\bottomrule
-\end{tabular}\medskip{}
-\par\end{centering}
-\caption{SpMVs for polynomials of different degree\label{tab:SpMVs}}
-
-\end{table}
-
-\begin{table}[h]
-\begin{centering}
-\begin{tabular}{cccccc}
-\toprule 
-{\footnotesize{}Inner p. \textbackslash{} deg} & \textbf{\footnotesize{}deg = 0} & \textbf{\footnotesize{}deg = 3} & \textbf{\footnotesize{}deg = 5} & \textbf{\footnotesize{}deg = 7} & \textbf{\footnotesize{}deg = 10}\tabularnewline
-\midrule
-\midrule 
-{\footnotesize{}CEM} & {\footnotesize{}1,010,000} & {\footnotesize{}633,330} & {\footnotesize{}304,176} & {\footnotesize{}183,285} & {\footnotesize{}92,385}\tabularnewline
-\midrule 
-{\footnotesize{}BiDiag1} & {\footnotesize{}190,981} & {\footnotesize{}18,711} & {\footnotesize{}9,261} & {\footnotesize{}5,526} & {\footnotesize{}2,541}\tabularnewline
-\midrule 
-{\footnotesize{}BiDiag2} & {\footnotesize{}2,691} & {\footnotesize{}630} & {\footnotesize{}423} & {\footnotesize{}288} & {\footnotesize{}153}\tabularnewline
-\midrule 
-{\footnotesize{}S1RMQ4M1} & {\footnotesize{}510,000} & {\footnotesize{}510,000} & {\footnotesize{}303,451} & {\footnotesize{}171,553} & {\footnotesize{}84,051}\tabularnewline
-\midrule 
-{\footnotesize{}E20R0100} & {\footnotesize{}1,010,000} & {\footnotesize{}1,010,000} & {\footnotesize{}1,010,000} & {\footnotesize{}479,750} & {\footnotesize{}50,203}\tabularnewline
-\bottomrule
-\end{tabular}\medskip{}
-\par\end{centering}
-\caption{Inner products for polynomials of different degree\label{tab:Inner-products}}
-
-\end{table}
-
-\begin{table}[h]
-\begin{centering}
-{\footnotesize{}}%
-\begin{tabular}{llll}
-\toprule 
-\textbf{\footnotesize{}﻿deg = 3} & \textbf{\footnotesize{}deg = 5} & \textbf{\footnotesize{}deg = 7} & \textbf{\footnotesize{}deg = 10}\tabularnewline
-\midrule
-\midrule 
-{\footnotesize{}-1.91E-22} & {\footnotesize{}-4.35E-33} & {\footnotesize{}-1.22E-43} & {\footnotesize{}2.68E-59}\tabularnewline
-\midrule 
-{\footnotesize{}2.64E-16} & {\footnotesize{}8.96E-27} & {\footnotesize{}3.35E-37} & {\footnotesize{}-1.01E-52}\tabularnewline
-\midrule 
-{\footnotesize{}-1.21E-10} & {\footnotesize{}-7.04E-21} & {\footnotesize{}-3.78E-31} & {\footnotesize{}1.66E-46}\tabularnewline
-\midrule 
-{\footnotesize{}2.03E-05} & {\footnotesize{}2.64E-15} & {\footnotesize{}2.25E-25} & {\footnotesize{}-1.55E-40}\tabularnewline
-\midrule 
- & {\footnotesize{}-4.83E-10} & {\footnotesize{}-7.60E-20} & {\footnotesize{}9.06E-35}\tabularnewline
-\midrule 
- & {\footnotesize{}3.89E-05} & {\footnotesize{}1.45E-14} & {\footnotesize{}-3.44E-29}\tabularnewline
-\midrule 
- &  & {\footnotesize{}-1.49E-09} & {\footnotesize{}8.52E-24}\tabularnewline
-\midrule 
- &  & {\footnotesize{}6.97E-05} & {\footnotesize{}-1.35E-18}\tabularnewline
-\midrule 
- &  &  & {\footnotesize{}1.30E-13}\tabularnewline
-\midrule 
- &  &  & {\footnotesize{}-6.95E-09}\tabularnewline
-\midrule 
- &  &  & {\footnotesize{}0.000166636}\tabularnewline
-\bottomrule
-\end{tabular}{\footnotesize\par}
-\par\end{centering}
-\medskip{}
-
-\caption{Coefficients for E20R0100 preconditioner \label{tab:E20R0100}}
-\end{table}
-
-\begin{table}[h]
-\begin{centering}
-{\footnotesize{}}%
-\begin{tabular}{llll}
-\toprule 
-\textbf{\footnotesize{}﻿deg = 3} & \textbf{\footnotesize{}deg = 5} & \textbf{\footnotesize{}deg = 7} & \textbf{\footnotesize{}deg = 10}\tabularnewline
-\midrule
-\midrule 
-{\footnotesize{}-0.000713559} & {\footnotesize{}-3.13E-05} & {\footnotesize{}-1.46E-06} & {\footnotesize{}1.32E-08}\tabularnewline
-\midrule 
-{\footnotesize{}0.020874807} & {\footnotesize{}0.001343698} & {\footnotesize{}8.26E-05} & {\footnotesize{}-1.01E-06}\tabularnewline
-\midrule 
-{\footnotesize{}-0.208017788} & {\footnotesize{}-0.022528635} & {\footnotesize{}-0.001951907} & {\footnotesize{}3.42E-05}\tabularnewline
-\midrule 
-{\footnotesize{}0.810365394} & {\footnotesize{}0.185637964} & {\footnotesize{}0.024829464} & {\footnotesize{}-0.000666207}\tabularnewline
-\midrule 
- & {\footnotesize{}-0.775251536} & {\footnotesize{}-0.183793499} & {\footnotesize{}0.008254609}\tabularnewline
-\midrule 
- & {\footnotesize{}1.503994707} & {\footnotesize{}0.797409734} & {\footnotesize{}-0.067904472}\tabularnewline
-\midrule 
- &  & {\footnotesize{}-1.935447001} & {\footnotesize{}0.375248046}\tabularnewline
-\midrule 
- &  & {\footnotesize{}2.324425706} & {\footnotesize{}-1.378454817}\tabularnewline
-\midrule 
- &  &  & {\footnotesize{}3.255175156}\tabularnewline
-\midrule 
- &  &  & {\footnotesize{}-4.624826993}\tabularnewline
-\midrule 
- &  &  & {\footnotesize{}3.470305855}\tabularnewline
-\bottomrule
-\end{tabular}{\footnotesize\par}
-\par\end{centering}
-\medskip{}
-
-\caption{Coefficients for S1RMQ4M1 preconditioner \label{tab:S1RMQ4M1}}
-\end{table}
 
 \end{document}
