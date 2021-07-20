@@ -312,21 +312,6 @@ literal "false"
 \end_inset
 
 .
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-mention explicitly that 
-\begin_inset Formula $A$
-\end_inset
-
- is sparse!
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
@@ -2150,6 +2135,10 @@ after "9.3"
 key "Saad-2003"
 literal "false"
 
+\end_inset
+
+
+\begin_inset VSpace defskip
 \end_inset
 
 
