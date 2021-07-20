@@ -3669,7 +3669,7 @@ E20R0100
 
 \begin_layout Standard
 \begin_inset Float figure
-placement b
+placement t
 wide false
 sideways false
 status open
@@ -3678,7 +3678,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename example_5_spec.png
-	width 50text%
+	width 45text%
 
 \end_inset
 
@@ -3746,48 +3746,6 @@ noprefix "false"
  We will consider this special case in the following section.
 \end_layout
 
-\begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename example_6_condition.png
-	width 50text%
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-Condition numbers for E20R0100 (blue) and SHERMAN5 (orange), depending on
- the polynomial degree of the preconditioner.
-\begin_inset CommandInset label
-LatexCommand label
-name "fig:cond_circle_evm"
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Subsection
 Convergence
 \end_layout
@@ -3833,26 +3791,13 @@ BiDiag1
 \series bold
 BiDiag2
 \series default
- converged without preconditioning using GMRES(20), reaching a tolerance
- of 
+ converged without preconditioning using GMRES(20), reaching 
 \begin_inset Formula $\varepsilon=10^{-8}$
 \end_inset
 
- in 18193 and 258 steps, respectively.
- Preconditioning further increased the convergence rate, reaching convergence
- in 1786 and 60 steps, respectively, for a degree 3 polynomial.
- This is illustrated in Fig.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:bidiag2"
-plural "false"
-caps "false"
-noprefix "false"
-
-\end_inset
-
- for BiDiag2.
+ in 18,193 and 258 steps, respectively.
+ Preconditioning increased the convergence rate, reaching the tolerance
+ in 1,786 and 60 steps, respectively, with a degree 3 polynomial.
 \end_layout
 
 \begin_layout Itemize
@@ -3860,9 +3805,8 @@ noprefix "false"
 \series bold
 S1RMQ4M1
 \series default
- did not converge with GMRES(50).
- With 20,000 steps available, a polynomial of degree 5 was required to converge
- (in 11901 steps).
+ did not converge with GMRES(50) below 20,000 steps, and a polynomial of
+ degree 5 was required to converge (in 11,901 steps).
  Higher degree polynomials lead to better results.
  See Fig.
  
@@ -3876,12 +3820,15 @@ noprefix "false"
 \end_inset
 
 .
- The 
+\end_layout
+
+\begin_layout Itemize
+The 
 \series bold
 Circle Eigenvalue Matrix
 \series default
- behaved similarly, requiring a degree 3 polynomial to converge in 12564
- steps.
+ did not converge even with GMRES(100), but a degree 3 polynomial sufficed
+ for convergence in 12,564 steps.
 \end_layout
 
 \begin_layout Itemize
@@ -3890,7 +3837,7 @@ Circle Eigenvalue Matrix
 E20R0100
 \series default
  is a more difficult problem, and required a degree 7 polynomial to converge
- (in 9500 steps) with GMRES(100).
+ (in 9,500 steps) with GMRES(100).
  The problem converged in only 997 steps if we raised the polynomial degree
  to 10.
  See Fig.
@@ -4443,9 +4390,10 @@ E20R0100
 \end_inset
 
 The amount of SpMVs increased by ~3x (for S1RMQ4M1) up to ~6x (for the Circle
- Eigenvalue Matrix).
+ Eigenvalue Matrix) for preconditioned matrices.
  For E20R0100, there was up to ~8x increase, but with fast convergence of
- a degree 10 preconditioner, latter only saw an increase of ~1.25x in SpMVs.
+ the degree 10 preconditioner, latter only resulted in an increase of ~1.25x
+ in SpMVs.
  See Table 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -4965,8 +4913,8 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename example_3_gmres.png
-	width 40text%
+	filename example_6_condition.png
+	width 45text%
 
 \end_inset
 
@@ -4977,10 +4925,11 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Convergence of BiDiag2, GMRES(20)
+Condition numbers for E20R0100 (blue) and SHERMAN5 (orange), depending on
+ the polynomial degree of the preconditioner.
 \begin_inset CommandInset label
 LatexCommand label
-name "fig:bidiag2"
+name "fig:cond_circle_evm"
 
 \end_inset
 
@@ -5081,6 +5030,7 @@ name "fig:convergence_e20r0100"
 
 \begin_layout Standard
 \begin_inset Float figure
+placement t
 wide false
 sideways false
 status open
@@ -5130,7 +5080,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename example_6_gmres_seed_1892.png
-	width 40text%
+	width 39text%
 
 \end_inset
 
@@ -5207,7 +5157,11 @@ Applying this preconditioner to several difficult problems, including E20R0100,
  shows it can be used to significantly improve convergence of GMRES.
  In particular, on parallel systems, synchronization points from inner products
  in each GMRES step are reduced.
- Care should be taken for problems such as SHERMAN5, where effectiveness
+ 
+\end_layout
+
+\begin_layout Standard
+Care should be taken for problems such as SHERMAN5, where effectiveness
  varies for different samples of the vector 
 \begin_inset Formula $v_{0}$
 \end_inset

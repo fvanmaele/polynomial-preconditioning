@@ -562,9 +562,9 @@ $|\lambda(A)|$, the (magnitude of the) spectrum of $A$.\label{tab:spectra-stats}
 \end{tabular}
 \end{table}
 
-\begin{figure}[b]
+\begin{figure}[t]
 \begin{centering}
-\includegraphics[width=0.5\textwidth]{example_5_spec}
+\includegraphics[width=0.45\textwidth]{example_5_spec}
 \par\end{centering}
 \caption{Spectrum of $A$ (blue) and $M^{-1}A$ (orange, $d=10$) for E20R0100\label{fig:spec_e20r0100}}
 \end{figure}
@@ -575,15 +575,6 @@ $10$ polynomials decreased the condition number by a degree of magnitude.
 The exception was SHERMAN5, where the condition number varied strongly
 for different degree polyomials. This is illustrated in Fig. \ref{fig:cond_circle_evm}.
 We will consider this special case in the following section.
-
-\begin{figure}[tb]
-\begin{centering}
-\includegraphics[width=0.5\textwidth]{example_6_condition}
-\par\end{centering}
-\caption{Condition numbers for E20R0100 (blue) and SHERMAN5 (orange), depending
-on the polynomial degree of the preconditioner.\label{fig:cond_circle_evm}}
-\end{figure}
-
 
 \subsection{Convergence}
 
@@ -598,19 +589,17 @@ In the below, the maximum of iterations is set to 20,000, and the
 tolerance to $\varepsilon=10^{-8}$ for the relative residual $\frac{\|b-Ax_{m}\|}{\|b\|}$.
 \begin{itemize}
 \item \textbf{BiDiag1} and \textbf{BiDiag2} converged without preconditioning
-using GMRES(20), reaching a tolerance of $\varepsilon=10^{-8}$ in
-18193 and 258 steps, respectively. Preconditioning further increased
-the convergence rate, reaching convergence in 1786 and 60 steps, respectively,
-for a degree 3 polynomial. This is illustrated in Fig. \ref{fig:bidiag2}
-for BiDiag2.
-\item \textbf{S1RMQ4M1} did not converge with GMRES(50). With 20,000 steps
-available, a polynomial of degree 5 was required to converge (in 11901
-steps). Higher degree polynomials lead to better results. See Fig.
-\ref{fig:convergence_s1rmq4m1}. The \textbf{Circle Eigenvalue Matrix}
-behaved similarly, requiring a degree 3 polynomial to converge in
-12564 steps.
+using GMRES(20), reaching $\varepsilon=10^{-8}$ in 18,193 and 258
+steps, respectively. Preconditioning increased the convergence rate,
+reaching the tolerance in 1,786 and 60 steps, respectively, with a
+degree 3 polynomial.
+\item \textbf{S1RMQ4M1} did not converge with GMRES(50) below 20,000 steps,
+and a polynomial of degree 5 was required to converge (in 11,901 steps).
+Higher degree polynomials lead to better results. See Fig. \ref{fig:convergence_s1rmq4m1}.
+\item The \textbf{Circle Eigenvalue Matrix} did not converge even with GMRES(100),
+but a degree 3 polynomial sufficed for convergence in 12,564 steps.
 \item \textbf{E20R0100} is a more difficult problem, and required a degree
-7 polynomial to converge (in 9500 steps) with GMRES(100). The problem
+7 polynomial to converge (in 9,500 steps) with GMRES(100). The problem
 converged in only 997 steps if we raised the polynomial degree to
 10. See Fig. \ref{fig:convergence_e20r0100}.
 \item Results for \textbf{SHERMAN5} varied between samples of $v_{0}$ of
@@ -648,11 +637,11 @@ sample. See Fig. \ref{fig:convergence_SHERMAN5-1} and \ref{fig:convergence_SHERM
 
 \medskip{}
 The amount of SpMVs increased by \textasciitilde 3x (for S1RMQ4M1)
-up to \textasciitilde 6x (for the Circle Eigenvalue Matrix). For
-E20R0100, there was up to \textasciitilde 8x increase, but with fast
-convergence of a degree 10 preconditioner, latter only saw an increase
-of \textasciitilde 1.25x in SpMVs. See Table \ref{tab:SpMVs} for
-an overview.
+up to \textasciitilde 6x (for the Circle Eigenvalue Matrix) for preconditioned
+matrices. For E20R0100, there was up to \textasciitilde 8x increase,
+but with fast convergence of the degree 10 preconditioner, latter
+only resulted in an increase of \textasciitilde 1.25x in SpMVs. See
+Table \ref{tab:SpMVs} for an overview.
 
 \begin{table}[b]
 \caption{SpMVs for polynomials of different degree\label{tab:SpMVs}}
@@ -688,9 +677,10 @@ below $10^{-25}$ for S1RMQ4M1).
 \end{rem}
 \begin{figure}[tb]
 \begin{centering}
-\includegraphics[width=0.4\textwidth]{example_3_gmres}
+\includegraphics[width=0.45\textwidth]{example_6_condition}
 \par\end{centering}
-\caption{Convergence of BiDiag2, GMRES(20)\label{fig:bidiag2}}
+\caption{Condition numbers for E20R0100 (blue) and SHERMAN5 (orange), depending
+on the polynomial degree of the preconditioner.\label{fig:cond_circle_evm}}
 \end{figure}
 
 \begin{figure}[tb]
@@ -702,6 +692,13 @@ below $10^{-25}$ for S1RMQ4M1).
 
 \begin{figure}[tb]
 \begin{centering}
+\includegraphics[width=0.4\textwidth]{example_6_gmres_seed_42}
+\par\end{centering}
+\caption{Convergence of SHERMAN5, GMRES(100), seed = 42 \label{fig:convergence_SHERMAN5-1}}
+\end{figure}
+
+\begin{figure}[t]
+\begin{centering}
 \includegraphics[width=0.4\textwidth]{example_5_gmres}
 \par\end{centering}
 \caption{Convergence of E20R0100, GMRES(100) \label{fig:convergence_e20r0100}}
@@ -709,14 +706,7 @@ below $10^{-25}$ for S1RMQ4M1).
 
 \begin{figure}[tb]
 \begin{centering}
-\includegraphics[width=0.4\textwidth]{example_6_gmres_seed_42}
-\par\end{centering}
-\caption{Convergence of SHERMAN5, GMRES(100), seed = 42 \label{fig:convergence_SHERMAN5-1}}
-\end{figure}
-
-\begin{figure}[tb]
-\begin{centering}
-\includegraphics[width=0.4\textwidth]{example_6_gmres_seed_1892}
+\includegraphics[width=0.39\textwidth]{example_6_gmres_seed_1892}
 \par\end{centering}
 \caption{Convergence of SHERMAN5, GMRES(100), seed = 1892 \label{fig:convergence_SHERMAN5-2}}
 \end{figure}
@@ -739,10 +729,11 @@ typically to $d\leq10$.
 Applying this preconditioner to several difficult problems, including
 E20R0100, shows it can be used to significantly improve convergence
 of GMRES. In particular, on parallel systems, synchronization points
-from inner products in each GMRES step are reduced. Care should be
-taken for problems such as SHERMAN5, where effectiveness varies for
-different samples of the vector $v_{0}$, and can even result in worse
-convergence.
+from inner products in each GMRES step are reduced. 
+
+Care should be taken for problems such as SHERMAN5, where effectiveness
+varies for different samples of the vector $v_{0}$, and can even
+result in worse convergence.
 \begin{thebibliography}{10}
 \bibitem{Saad-1986}Y. SAAD, M. H. Schultz, \emph{GMRES: A generalized
 minimal residual algorithm for solving nonsymmetric linear systems,}
