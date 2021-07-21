@@ -2858,10 +2858,6 @@ SHERMAN5
 \begin_layout Standard
 Polynomials of degree 3, 5, 7, and 10 are used for most problems.
  Implementation was done in MATLAB
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
 \begin_inset Foot
 status open
 
@@ -2873,11 +2869,6 @@ status open
 \begin_layout Plain Layout
 
 https://github.com/fvanmaele/polynomial-preconditioning
-\end_layout
-
-\end_inset
-
- for the implementation and supplementary materials.
 \end_layout
 
 \end_inset
