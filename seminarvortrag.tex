@@ -7,7 +7,6 @@
 \usepackage{float}
 \usepackage{booktabs}
 \usepackage{units}
-\usepackage{url}
 \usepackage{multirow}
 \usepackage{amsmath}
 \usepackage{amsthm}
@@ -514,8 +513,8 @@ by Matrix Market. This matrix serves as an example where polynomial
 preconditioning can worsen convergence.
 \end{enumerate}
 Polynomials of degree 3, 5, 7, and 10 are used for most problems.
-Implementation was done in MATLAB\footnote{See \url{https://github.com/fvanmaele/polynomial-preconditioning}
-for the implementation and supplementary materials.}, based on \texttt{gmres.m} from the Netlib Repository.
+Implementation was done in MATLAB, based on \texttt{gmres.m} from
+the Netlib Repository.
 
 \subsection{Numerical properties}
 
@@ -553,6 +552,10 @@ $|\lambda(A)|$, the (magnitude of the) spectrum of $A$.\label{tab:spectra-stats}
 \multirow{2}{*}{\textbf{\scriptsize{}BiDiag1}} & {\scriptsize{}–} & {\scriptsize{}0.1} & {\scriptsize{}4991} & {\scriptsize{}2491.5} & {\scriptsize{}1443.5}\tabularnewline
 \cline{2-6} \cline{3-6} \cline{4-6} \cline{5-6} \cline{6-6} 
  & {\scriptsize{}3} & {\scriptsize{}0.00024} & {\scriptsize{}1.1509} & {\scriptsize{}0.95895} & {\scriptsize{}0.19989}\tabularnewline
+\hline 
+\multirow{2}{*}{\textbf{\scriptsize{}BiDiag2}} & {\scriptsize{}$-$} & {\scriptsize{}10} & {\scriptsize{}5009} & {\scriptsize{}2509.5} & {\scriptsize{}1443.5}\tabularnewline
+\cline{2-6} \cline{3-6} \cline{4-6} \cline{5-6} \cline{6-6} 
+ & {\scriptsize{}$3$} & {\scriptsize{}0.0239} & {\scriptsize{}1.1535} & {\scriptsize{}0.9626} & {\scriptsize{}0.1919}\tabularnewline
 \hline 
 \multirow{2}{*}{\textbf{\scriptsize{}S1RMQ4M1}} & {\scriptsize{}–} & {\scriptsize{}0.3797} & {\scriptsize{}6.8743e+05} & {\scriptsize{}8.676e+04} & {\scriptsize{}1.2595e+05}\tabularnewline
 \cline{2-6} \cline{3-6} \cline{4-6} \cline{5-6} \cline{6-6} 
@@ -740,13 +743,13 @@ varies for different samples of the vector $v_{0}$, and can even
 result in worse convergence.
 
 \begin{table}[h]
-\caption{Coefficients for a polynomial preconditioner of degree $7$, $M^{-1}=s^{8}A^{7}+\cdots+s^{2}A+s^{1}I$\label{tab:polynomial-coefficients}}
+\caption{Coefficients for polynomial preconditioners of degree $7$, $M^{-1}=s^{8}A^{7}+\cdots+s^{2}A+s^{1}I$\label{tab:polynomial-coefficients}}
 \medskip{}
 
-\begin{centering}
+\centering{}%
 \begin{tabular}{cccccc}
 \toprule 
- & \textbf{\scriptsize{}CEM} & \textbf{\scriptsize{}BiDiag1} & \textbf{\scriptsize{}BiDiag2} & \textbf{\scriptsize{}S1RMQ4M1} & \textbf{\scriptsize{}E20R0100}\tabularnewline
+{\scriptsize{}$A$} & \textbf{\scriptsize{}CEM} & \textbf{\scriptsize{}BiDiag1} & \textbf{\scriptsize{}BiDiag2} & \textbf{\scriptsize{}S1RMQ4M1} & \textbf{\scriptsize{}E20R0100}\tabularnewline
 \midrule
 \midrule 
 {\scriptsize{}$s^{8}$} & {\scriptsize{}-0.1107} & {\scriptsize{}-7.123e-27} & {\scriptsize{}-6.909e-27} & {\scriptsize{}-1.219e-43} & {\scriptsize{}-1.456e-06}\tabularnewline
@@ -766,7 +769,6 @@ result in worse convergence.
 {\scriptsize{}$s^{1}$} & {\scriptsize{}4} & {\scriptsize{}0.00807} & {\scriptsize{}0.007982} & {\scriptsize{}6.967e-05} & {\scriptsize{}2.324}\tabularnewline
 \bottomrule
 \end{tabular}
-\par\end{centering}
 \end{table}
 
 \begin{thebibliography}{10}
