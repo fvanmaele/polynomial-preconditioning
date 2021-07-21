@@ -3,10 +3,12 @@
 \documentclass[twocolumn,journal]{IEEEtran}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\usepackage{array}
 \usepackage{float}
 \usepackage{booktabs}
 \usepackage{units}
 \usepackage{url}
+\usepackage{multirow}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
@@ -544,21 +546,21 @@ $|\lambda(A)|$, the (magnitude of the) spectrum of $A$.\label{tab:spectra-stats}
 {\scriptsize{}Matrix $A$} & {\scriptsize{}$\deg$} & {\scriptsize{}$\min(|\lambda(A)|)$} & {\scriptsize{}$\max(|\lambda(A)|$} & {\scriptsize{}$\mu(|\lambda(A)|$} & {\scriptsize{}$\sigma(|\lambda(A)|)$}\tabularnewline
 \hline 
 \hline 
-{\scriptsize{}CEM} & {\scriptsize{}–} & {\scriptsize{}0.00314} & {\scriptsize{}2} & {\scriptsize{}1.2742} & {\scriptsize{}0.61523}\tabularnewline
+\multirow{2}{*}{\textbf{\scriptsize{}CEM}} & {\scriptsize{}–} & {\scriptsize{}0.00314} & {\scriptsize{}2} & {\scriptsize{}1.2742} & {\scriptsize{}0.61523}\tabularnewline
+\cline{2-6} \cline{3-6} \cline{4-6} \cline{5-6} \cline{6-6} 
+ & {\scriptsize{}3} & {\scriptsize{}0.0063} & {\scriptsize{}1.1371} & {\scriptsize{}0.8663} & {\scriptsize{}0.2241}\tabularnewline
 \hline 
-{\scriptsize{}CEM} & {\scriptsize{}10} & {\scriptsize{}0.01727} & {\scriptsize{}1.2070} & {\scriptsize{}0.94540} & {\scriptsize{}0.14954}\tabularnewline
+\multirow{2}{*}{\textbf{\scriptsize{}BiDiag1}} & {\scriptsize{}–} & {\scriptsize{}0.1} & {\scriptsize{}4991} & {\scriptsize{}2491.5} & {\scriptsize{}1443.5}\tabularnewline
+\cline{2-6} \cline{3-6} \cline{4-6} \cline{5-6} \cline{6-6} 
+ & {\scriptsize{}3} & {\scriptsize{}0.00024} & {\scriptsize{}1.1509} & {\scriptsize{}0.95895} & {\scriptsize{}0.19989}\tabularnewline
 \hline 
-{\scriptsize{}BiDiag1} & {\scriptsize{}–} & {\scriptsize{}0.1} & {\scriptsize{}4991} & {\scriptsize{}2491.5} & {\scriptsize{}1443.5}\tabularnewline
+\multirow{2}{*}{\textbf{\scriptsize{}S1RMQ4M1}} & {\scriptsize{}–} & {\scriptsize{}0.3797} & {\scriptsize{}6.8743e+05} & {\scriptsize{}8.676e+04} & {\scriptsize{}1.2595e+05}\tabularnewline
+\cline{2-6} \cline{3-6} \cline{4-6} \cline{5-6} \cline{6-6} 
+ & {\scriptsize{}5} & {\scriptsize{}1.476e-05 } & {\scriptsize{}1.21} & {\scriptsize{}0.4977} & {\scriptsize{}0.4995}\tabularnewline
 \hline 
-{\scriptsize{}BiDiag1} & {\scriptsize{}3} & {\scriptsize{}0.00024} & {\scriptsize{}1.1509} & {\scriptsize{}0.95895} & {\scriptsize{}0.19989}\tabularnewline
-\hline 
-{\scriptsize{}S1RMQ4M1} & {\scriptsize{}–} & {\scriptsize{}0.37970} & {\scriptsize{}6.8743e+05} & {\scriptsize{}8.6760e+04} & {\scriptsize{}1.2595e+05}\tabularnewline
-\hline 
-{\scriptsize{}S1RMQ4M1} & {\scriptsize{}3} & {\scriptsize{}7.7127e-06} & {\scriptsize{}1.2028} & {\scriptsize{}0.47948} & {\scriptsize{}0.49665}\tabularnewline
-\hline 
-{\scriptsize{}E20R0100} & {\scriptsize{}–} & {\scriptsize{}1.3999e-06} & {\scriptsize{}13.057} & {\scriptsize{}4.3537} & {\scriptsize{}4.0740}\tabularnewline
-\hline 
-{\scriptsize{}E20R0100} & {\scriptsize{}10} & {\scriptsize{}4.8582e-06} & {\scriptsize{}1.0902} & {\scriptsize{}0.71268} & {\scriptsize{}0.44947}\tabularnewline
+\multirow{2}{*}{\textbf{\scriptsize{}E20R0100}} & {\scriptsize{}–} & {\scriptsize{}1.3999e-06} & {\scriptsize{}13.057} & {\scriptsize{}4.3537} & {\scriptsize{}4.074}\tabularnewline
+\cline{2-6} \cline{3-6} \cline{4-6} \cline{5-6} \cline{6-6} 
+ & {\scriptsize{}10} & {\scriptsize{}4.8582e-06} & {\scriptsize{}1.0902} & {\scriptsize{}0.71268} & {\scriptsize{}0.44947}\tabularnewline
 \hline 
 \end{tabular}
 \end{table}
@@ -670,11 +672,12 @@ Table \ref{tab:SpMVs} for an overview.
 \begin{rem}
 The polynomial preconditioner had very small coefficients for its
 higher-order terms, for all problems except the Circle Eigenvalue
-Matrix. This effect may originate from the ill-conditioned nature
-of computing coefficients with the normal equations and a power basis
-\cite[III]{Loe-2019}. In particular, LAPACK reported a very small
-\emph{RCOND} for these problems (below $10^{-17}$ for E20R011 and
-below $10^{-25}$ for S1RMQ4M1).
+Matrix (Table \ref{tab:polynomial-coefficients}). This effect may
+originate from the ill-conditioned nature of computing coefficients
+with the normal equations and a power basis \cite[III]{Loe-2019}.
+In particular, LAPACK reported a very small \emph{RCOND} for these
+problems (below $10^{-17}$ for E20R011 and below $10^{-25}$ for
+S1RMQ4M1).
 \end{rem}
 \begin{figure}[tb]
 \begin{centering}
@@ -735,6 +738,37 @@ from inner products in each GMRES step are reduced.
 Care should be taken for problems such as SHERMAN5, where effectiveness
 varies for different samples of the vector $v_{0}$, and can even
 result in worse convergence.
+
+\begin{table}[h]
+\caption{Coefficients for a polynomial preconditioner of degree $7$, $M^{-1}=s^{8}A^{7}+\cdots+s^{2}A+s^{1}I$\label{tab:polynomial-coefficients}}
+\medskip{}
+
+\begin{centering}
+\begin{tabular}{cccccc}
+\toprule 
+ & \textbf{\scriptsize{}CEM} & \textbf{\scriptsize{}BiDiag1} & \textbf{\scriptsize{}BiDiag2} & \textbf{\scriptsize{}S1RMQ4M1} & \textbf{\scriptsize{}E20R0100}\tabularnewline
+\midrule
+\midrule 
+{\scriptsize{}$s^{8}$} & {\scriptsize{}-0.1107} & {\scriptsize{}-7.123e-27} & {\scriptsize{}-6.909e-27} & {\scriptsize{}-1.219e-43} & {\scriptsize{}-1.456e-06}\tabularnewline
+\midrule 
+{\scriptsize{}$s^{7}$} & {\scriptsize{}0.9963} & {\scriptsize{}1.505e-22} & {\scriptsize{}1.464e-22} & {\scriptsize{}3.352e-37} & {\scriptsize{}8.264e-05}\tabularnewline
+\midrule 
+{\scriptsize{}$s^{6}$} & {\scriptsize{}-3.987} & {\scriptsize{}-1.314e-18} & {\scriptsize{}-1.282e-18} & {\scriptsize{}-3.779e-31} & {\scriptsize{}-0.001952}\tabularnewline
+\midrule 
+{\scriptsize{}$s^{5}$} & {\scriptsize{}9.309} & {\scriptsize{}6.119e-15} & {\scriptsize{}5.982e-15} & {\scriptsize{}2.249e-25} & {\scriptsize{}0.02483}\tabularnewline
+\midrule 
+{\scriptsize{}$s^{4}$} & {\scriptsize{}-13.97} & {\scriptsize{}-1.635e-11} & {\scriptsize{}-1.602e-11} & {\scriptsize{}-7.598e-20} & {\scriptsize{}-0.1838}\tabularnewline
+\midrule 
+{\scriptsize{}$s^{3}$} & {\scriptsize{}13.98} & {\scriptsize{}2.507e-08} & {\scriptsize{}2.463e-08} & {\scriptsize{}1.455e-14} & {\scriptsize{}0.7974}\tabularnewline
+\midrule 
+{\scriptsize{}$s^{2}$} & {\scriptsize{}-9.327} & {\scriptsize{}-2.082e-05} & {\scriptsize{}-2.05e-05} & {\scriptsize{}-1.487e-09} & {\scriptsize{}-1.935}\tabularnewline
+\midrule 
+{\scriptsize{}$s^{1}$} & {\scriptsize{}4} & {\scriptsize{}0.00807} & {\scriptsize{}0.007982} & {\scriptsize{}6.967e-05} & {\scriptsize{}2.324}\tabularnewline
+\bottomrule
+\end{tabular}
+\par\end{centering}
+\end{table}
+
 \begin{thebibliography}{10}
 \bibitem{Saad-1986}Y. SAAD, M. H. Schultz, \emph{GMRES: A generalized
 minimal residual algorithm for solving nonsymmetric linear systems,}

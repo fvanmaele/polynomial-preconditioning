@@ -64,10 +64,10 @@ end
 %%
 plot(specA, 'o')
 hold on
-%plot(specPA{3}, 'o')
+plot(specPA{3}, 'o')
 %plot(specPA{5}, 'o')
 %plot(specPA{7}, 'o')
-plot(specPA{10}, 'o')
+%plot(specPA{10}, 'o')
 %axis([-0.5 2.5 -1.5 1.5])
 
 %% Condition number (estimate)
